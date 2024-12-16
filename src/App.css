@@ -72,15 +72,13 @@
 }
 
 .search-chat-input::placeholder {
-  position: absolute;
-  bottom: 10px; /* Adjust as needed */
-  left: 10px; /* Same as input padding */
-  color: #999; /* Placeholder text color */
+  opacity: 1 !important;
+  color: #999;
 }
 
 .search-suggestions {
   position: absolute;
-  top: 48px; /* Adjust based on your input height */
+  top: 100%;
   left: 0;
   width: 100%;
   background-color: #fff;
@@ -88,6 +86,11 @@
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 10;
+  display: none; /* Hide by default */
+}
+
+.search-suggestions:not(:empty) {
+  display: block; /* Show only when there are suggestions */
 }
 
 .suggestion {
@@ -183,6 +186,41 @@
 .help-section h3,
 .stats-section h3 {
   margin-top: 0;
+}
+
+.help-section .csv-format {
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+.help-section .csv-format:first-of-type strong {
+  color: #333;
+  font-weight: bold;
+}
+
+.help-section ul {
+  margin-top: 5px;
+  padding-left: 20px;
+}
+
+.help-section li {
+  margin-bottom: 5px;
+}
+
+.help-section code {
+  background-color: #eee;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 90%;
 }
 
 .saved-searches-section {
@@ -314,11 +352,11 @@
 }
 
 .tag {
-  background-color: #000;
-  color: #fff;
-  padding: 5px 10px;
-  border-radius: 3px;
-  white-space: normal; /* Allow tags to wrap */
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 3px;
+    white-space: normal;
 }
 
 .bot-links {
@@ -353,6 +391,12 @@
   cursor: pointer;
   font-size: 14px;
 }
+
+.bot-links-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adjust the gap as needed */
+  }
 
 .link {
   margin-bottom: 5px;
@@ -400,24 +444,55 @@
   color: #333; /* Dark grey color */
 }
 
-.bot-system-prompt h4 {
+.system-prompt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 5px;
-  font-weight: 600; /* Slightly bolder font weight for the title */
+  padding-right: 5px;
+}
+
+.system-prompt-header h4 {
+  margin: 0;
+}
+
+.system-prompt-header .edit-button {
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  color: #666;
+}
+
+.system-prompt-header .edit-button:hover {
+  color: #333;
 }
 
 .bot-system-prompt textarea {
-  background-color: #f8f8f8; /* Light grey background */
+  background-color: #f8f8f8;
   border: 1px solid #ccc;
   padding: 8px;
   border-radius: 5px;
-  white-space: pre-wrap; /* Preserve line breaks and spaces */
+  white-space: pre-wrap;
   width: 95%;
   resize: vertical;
+  min-height: 60px;
+}
+
+.bot-system-prompt textarea:read-only {
+  background-color: #f8f8f8;
+  cursor: default;
+}
+
+.bot-system-prompt textarea:not(:read-only) {
+  background-color: #fff;
+  cursor: text;
 }
 
 .pagination {
     display: flex;
     justify-content: center;
+    align-items: center;
     margin-top: 20px;
   }
   
@@ -435,6 +510,10 @@
     color: #fff;
   }
 
+  .pagination span {
+    margin-right: 10px; /* Add some space between the text and buttons */
+  }
+
   .expand-button {
     background: none;
     border: none;
@@ -450,3 +529,43 @@
   .bot-expanded-content {
     margin-top: 10px; /* Add some space between the "More" button and the content */
   }
+
+.csv-format-table {
+  margin: 15px 0;
+  overflow-x: auto;
+}
+
+.csv-format-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  font-size: 14px;
+}
+
+.csv-format-table th,
+.csv-format-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.csv-format-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.csv-format-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.csv-format-table code {
+  background-color: #f0f0f0;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 90%;
+}
+
+.csv-format-table td:nth-child(2) {
+  text-align: center;
+}

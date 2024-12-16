@@ -13,52 +13,10 @@ import {
   FaSave,
   FaFileCsv,
   FaArrowUp,
+  FaBars,
 } from 'react-icons/fa';
 
 function App() {
-  const [mode, setMode] = useState('search');
-  const [searchText, setSearchText] = useState('');
-  const [chatHistory, setChatHistory] = useState([]);
-  const [filteredBots, setFilteredBots] = useState([]);
-  const [pinnedBots, setPinnedBots] = useState([]);
-  const [allBots, setAllBots] = useState([]);
-  const [showStats, setShowStats] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
-  const [savedSearches, setSavedSearches] = useState([]);
-  const [showPinnedOnly, setShowPinnedOnly] = useState(false);
-  const [searchSuggestions, setSearchSuggestions] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showSavedSearchesList, setShowSavedSearchesList] = useState(false);
-  const [expandedBots, setExpandedBots] = useState({}); // Object to track expanded bots
-  const botsPerPage = 6;
-  const chatInputRef = useRef(null);
-  const searchInputRef = useRef(null);
-
-  useEffect(() => {
-    const initialBots = getInitialBots();
-    setAllBots(initialBots);
-    setFilteredBots(initialBots);
-    setSavedSearches(getInitialSavedSearches());
-    setSearchSuggestions(getInitialSearchSuggestions());
-  }, []);
-
-  useEffect(() => {
-    if (searchInputRef.current) {
-      searchInputRef.current.style.height = '24px'; // Reset height
-      const scrollHeight = searchInputRef.current.scrollHeight;
-      const maxHeight = 48; // 2 lines * 24px line height
-      searchInputRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
-    }
-    handleSearch();
-  }, [searchText]);
-
-  useEffect(() => {
-    // Hide chat history when switching to search mode
-    if (mode === 'search') {
-      setChatHistory([]);
-    }
-  }, [mode]);
-
   const getInitialBots = () => {
     return [
         {
@@ -165,6 +123,79 @@ function App() {
       ];
   };
 
+  const botsPerPage = 6;
+  const chatInputRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const chatHistoryRef = useRef(null);
+
+  const [mode, setMode] = useState('search');
+  const [searchText, setSearchText] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
+  const [filteredBots, setFilteredBots] = useState([]);
+  const [pinnedBots, setPinnedBots] = useState([]);
+  const [allBots, setAllBots] = useState([]);
+  const [showStats, setShowStats] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [savedSearches, setSavedSearches] = useState([]);
+  const [showPinnedOnly, setShowPinnedOnly] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showSavedSearchesList, setShowSavedSearchesList] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [expandedBots, setExpandedBots] = useState(() => {
+    // Initialize all bots as expanded
+    const initialBots = getInitialBots();
+    return initialBots.reduce((acc, bot) => {
+      acc[bot.id] = false;
+      return acc;
+    }, {});
+  });
+
+  useEffect(() => {
+    const initialBots = getInitialBots();
+    setAllBots(initialBots);
+    setFilteredBots(initialBots);
+    setSavedSearches(getInitialSavedSearches());
+    setSearchSuggestions([]);
+    // Set all bots as expanded
+    setExpandedBots(initialBots.reduce((acc, bot) => {
+      acc[bot.id] = false;
+      return acc;
+    }, {}));
+  }, []);
+
+  useEffect(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.style.height = '24px'; // Reset height
+      const scrollHeight = searchInputRef.current.scrollHeight;
+      const maxHeight = 48; // 2 lines * 24px line height
+      searchInputRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+    }
+    handleSearch();
+  }, [searchText]);
+
+  useEffect(() => {
+    // Hide chat history when switching to search mode
+    if (mode === 'search') {
+      setChatHistory([]);
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (showPinnedOnly) {
+      setFilteredBots(pinnedBots);
+    } else {
+      handleSearch(); // Call handleSearch to re-filter based on searchText
+    }
+    setCurrentPage(1);
+  }, [showPinnedOnly]);
+
+  useEffect(() => {
+    if (chatHistoryRef.current) {
+      chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
+
   const getInitialSavedSearches = () => {
     return [
         { name: 'Support Chat', searchText: 'support OR helpdesk', pinnedBots: [1] },
@@ -183,87 +214,96 @@ function App() {
   };
 
   const handleSearch = () => {
-    const filtered = allBots.filter(bot => {
-      const botName = bot.name.toLowerCase();
-      const botTags = bot.tags.join(' ').toLowerCase();
-      const botLinks = bot.links.map(link => link.url.toLowerCase()).join(' ');
-      const botSystemPrompt = bot.systemPrompt.toLowerCase();
-  
-      // Split the search text into terms and handle AND/OR logic
-      const searchTerms = searchText.toLowerCase().split(/\s+(?:and|or)\s+/);
-      const andTerms = searchText.toLowerCase().match(/(\w+)\s+and\s+(\w+)/g);
-      const orTerms = searchText.toLowerCase().match(/(\w+)\s+or\s+(\w+)/g);
-  
-      // Check if each term matches the bot's name, tags, links, or system prompt
-      const termMatches = searchTerms.map(term => 
-        botName.includes(term) || 
-        botTags.includes(term) || 
-        botLinks.includes(term) || 
-        botSystemPrompt.includes(term)
-      );
-  
-      if (andTerms) {
-        // Handle AND conditions: All terms connected by AND must be true
-        const andMatches = andTerms.map(andTerm => {
-          const terms = andTerm.split(/\s+and\s+/);
-          return terms.every(term => 
+    let filtered = allBots;
+
+    if (searchText) {
+        filtered = allBots.filter(bot => {
+        const botName = bot.name.toLowerCase();
+        const botTags = bot.tags.join(' ').toLowerCase();
+        const botLinks = bot.links.map(link => link.url.toLowerCase()).join(' ');
+        const botSystemPrompt = bot.systemPrompt.toLowerCase();
+    
+        // Split the search text into terms and handle AND/OR logic
+        const searchTerms = searchText.toLowerCase().split(/\s+(?:and|or)\s+/);
+        const andTerms = searchText.toLowerCase().match(/(\w+)\s+and\s+(\w+)/g);
+        const orTerms = searchText.toLowerCase().match(/(\w+)\s+or\s+(\w+)/g);
+    
+        // Check if each term matches the bot's name, tags, links, or system prompt
+        const termMatches = searchTerms.map(term => 
             botName.includes(term) || 
             botTags.includes(term) || 
             botLinks.includes(term) || 
             botSystemPrompt.includes(term)
-          );
+        );
+    
+        if (andTerms) {
+            // Handle AND conditions: All terms connected by AND must be true
+            const andMatches = andTerms.map(andTerm => {
+            const terms = andTerm.split(/\s+and\s+/);
+            return terms.every(term => 
+                botName.includes(term) || 
+                botTags.includes(term) || 
+                botLinks.includes(term) || 
+                botSystemPrompt.includes(term)
+            );
+            });
+            return andMatches.every(match => match);
+        } else if (orTerms) {
+            // Handle OR conditions: At least one term connected by OR must be true
+            const orMatches = orTerms.map(orTerm => {
+            const terms = orTerm.split(/\s+or\s+/);
+            return terms.some(term => 
+                botName.includes(term) || 
+                botTags.includes(term) || 
+                botLinks.includes(term) || 
+                botSystemPrompt.includes(term)
+            );
+            });
+            return termMatches.some(match => match) || orMatches.some(match => match);
+        } else {
+            // Default: If no AND/OR, any term match is sufficient
+            return termMatches.some(match => match);
+        }
         });
-        return andMatches.every(match => match);
-      } else if (orTerms) {
-        // Handle OR conditions: At least one term connected by OR must be true
-        const orMatches = orTerms.map(orTerm => {
-          const terms = orTerm.split(/\s+or\s+/);
-          return terms.some(term => 
-            botName.includes(term) || 
-            botTags.includes(term) || 
-            botLinks.includes(term) || 
-            botSystemPrompt.includes(term)
-          );
-        });
-        return termMatches.some(match => match) || orMatches.some(match => match);
-      } else {
-        // Default: If no AND/OR, any term match is sufficient
-        return termMatches.some(match => match);
-      }
-    });
+    }
   
+    if (showPinnedOnly) {
+        filtered = filtered.filter(bot => pinnedBots.some(pinnedBot => pinnedBot.id === bot.id));
+    }
+
     setFilteredBots(filtered);
     setCurrentPage(1); // Reset to the first page when searching
   };
   
 
-  const handleChatSubmit = () => {
-    if (searchText.trim() === '') return;
-
-    const newMessage = {
-      text: searchText,
-      sender: 'user',
+    const handleChatSubmit = () => {
+        if (searchText.trim() === '') return;
+    
+        const newMessage = {
+        text: searchText,
+        sender: 'user',
+        };
+    
+        setChatHistory([...chatHistory, newMessage]);
+        setSearchText('');
+    
+        // Simulate chatbot response (replace with actual API call)
+        setTimeout(() => {
+        const botResponse = {
+            text: `This is a simulated response from ${pinnedBots.length > 0 ? pinnedBots.map(bot => bot.name).join(', ') : 'selected bots'}.`,
+            sender: 'bot',
+        };
+        setChatHistory((prevChatHistory) => [...prevChatHistory, botResponse]);
+        }, 500);
     };
 
-    setChatHistory([...chatHistory, newMessage]);
-    setSearchText('');
-
-    // Simulate chatbot response (replace with actual API call)
-    setTimeout(() => {
-      const botResponse = {
-        text: `This is a simulated response from ${pinnedBots.length > 0 ? pinnedBots.map(bot => bot.name).join(', ') : 'selected bots'}.`,
-        sender: 'bot',
+    const handleNewChat = () => {
+        setChatHistory([]);
+        setSearchText('');
+        setPinnedBots([]);
+        setMode('search');
       };
-      setChatHistory((prevChatHistory) => [...prevChatHistory, botResponse]);
-    }, 500);
-  };
-
-  const handleNewChat = () => {
-    setChatHistory([]);
-    setSearchText('');
-    setPinnedBots([]);
-    setMode('search');
-  };
+    
 
   const togglePin = (botId) => {
     const bot = allBots.find((b) => b.id === botId);
@@ -315,16 +355,29 @@ function App() {
           return { ...bot, links: bot.links.filter((_, i) => i !== index) };
         } else if (field === 'bot') {
           if (window.confirm(`Are you sure you want to delete the bot "${bot.name}"?`)) {
-            return null; // Will be filtered out below
-          } else {
-            return bot; // Keep the bot if the user cancels
+            return null;
           }
+          return bot;
         }
       }
       return bot;
     }).filter((bot) => bot !== null);
   
     setAllBots(updatedBots);
+    setFilteredBots(prevFiltered => 
+      prevFiltered.map(bot => {
+        if (bot.id === botId) {
+          if (field === 'tags' && index >= 0) {
+            return { ...bot, tags: bot.tags.filter((_, i) => i !== index) };
+          } else if (field === 'links' && index >= 0) {
+            return { ...bot, links: bot.links.filter((_, i) => i !== index) };
+          } else if (field === 'bot') {
+            return null;
+          }
+        }
+        return bot;
+      }).filter(bot => bot !== null)
+    );
     if (field === 'bot') {
       setPinnedBots(pinnedBots.filter((bot) => bot.id !== botId));
     }
@@ -346,8 +399,12 @@ function App() {
   const addTag = (botId) => {
     const newTag = prompt('Enter new tag:');
     if (newTag) {
-      setAllBots(
-        allBots.map((bot) =>
+      const updatedBots = allBots.map((bot) => 
+        bot.id === botId ? { ...bot, tags: [...bot.tags, newTag] } : bot
+      );
+      setAllBots(updatedBots);
+      setFilteredBots(prevFiltered => 
+        prevFiltered.map(bot => 
           bot.id === botId ? { ...bot, tags: [...bot.tags, newTag] } : bot
         )
       );
@@ -363,8 +420,12 @@ function App() {
         lastUpdated: new Date().toLocaleDateString(),
         status: 'pending',
       };
-      setAllBots(
-        allBots.map((bot) =>
+      const updatedBots = allBots.map((bot) =>
+        bot.id === botId ? { ...bot, links: [...bot.links, newLink] } : bot
+      );
+      setAllBots(updatedBots);
+      setFilteredBots(prevFiltered => 
+        prevFiltered.map(bot => 
           bot.id === botId ? { ...bot, links: [...bot.links, newLink] } : bot
         )
       );
@@ -381,9 +442,12 @@ function App() {
         links: [],
         systemPrompt: '',
       };
-      setAllBots([...allBots, newBot]);
-      // Update filteredBots to include the new bot
-      setFilteredBots([...allBots, newBot]);
+      const updatedBots = [newBot, ...allBots];
+      setAllBots(updatedBots);
+      if (!showPinnedOnly) {
+        setFilteredBots(prev => [newBot, ...prev]);
+      }
+      setCurrentPage(1);
     }
   };
 
@@ -408,6 +472,11 @@ function App() {
   const handleUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
+    const botId = parseInt(event.target.dataset.botId);
+    if (!botId || !allBots.some((bot) => bot.id === botId)) {
+      alert('Invalid bot ID.');
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -423,25 +492,24 @@ function App() {
       links = links.filter((link) => link);
 
       if (links.length > 0) {
-        const botId = parseInt(prompt('Enter the ID of the bot to add links to:'));
-        if (botId && allBots.some((bot) => bot.id === botId)) {
-          setAllBots(
-            allBots.map((bot) => {
-              if (bot.id === botId) {
-                const newLinks = links.map((url) => ({
-                  url,
-                  version: '1.0',
-                  lastUpdated: new Date().toLocaleDateString(),
-                  status: 'pending',
-                }));
-                return { ...bot, links: [...bot.links, ...newLinks] };
-              }
-              return bot;
-            })
-          );
-        } else {
-          alert('Invalid bot ID.');
-        }
+        const updatedBots = allBots.map((bot) => {
+          if (bot.id === botId) {
+            const newLinks = links.map((url) => ({
+              url,
+              version: '1.0',
+              lastUpdated: new Date().toLocaleDateString(),
+              status: 'pending',
+            }));
+            return { ...bot, links: [...bot.links, ...newLinks] };
+          }
+          return bot;
+        });
+        setAllBots(updatedBots);
+        setFilteredBots(prevFiltered => 
+          prevFiltered.map(bot => 
+            bot.id === botId ? updatedBots.find(b => b.id === botId) : bot
+          )
+        );
       }
     };
 
@@ -450,30 +518,32 @@ function App() {
     };
 
     reader.readAsText(file);
+    event.target.value = ''; // Reset the file input
   };
 
   const stats = {
     numBots: pinnedBots.length,
-    numFiles: pinnedBots.reduce((sum, bot) => sum + bot.links.length, 0),
-    timeSpan: chatHistory.length > 0 ? 'N/A' : 'No chat history',
+    numFiles: filteredBots.reduce((total, bot) => total + bot.links.length, 0),
+    numPinnedFiles: pinnedBots.reduce((total, bot) => total + bot.links.length, 0),
     totalTags: new Set(allBots.flatMap((bot) => bot.tags)).size,
     currentTags: new Set(pinnedBots.flatMap((bot) => bot.tags)).size,
   };
 
-    const handleSearchTextChange = (e) => {
-        const newSearchText = e.target.value;
-        setSearchText(newSearchText);
-    
-        // Update search suggestions based on newSearchText
-        const newSuggestions = getInitialSearchSuggestions() // Use the initial suggestions as a base
-        .filter(item => item.toLowerCase().includes(newSearchText.toLowerCase()))
-        .slice(0, 5); // Limit to 5 suggestions
-    
-        setSearchSuggestions(newSuggestions);
-    };
+  const handleSearchTextChange = (e) => {
+    const newSearchText = e.target.value;
+    setSearchText(newSearchText);
+    setSearchSuggestions(
+        newSearchText
+        ? getInitialSearchSuggestions().filter((item) =>
+            item.toLowerCase().includes(newSearchText.toLowerCase())
+            )
+        : []
+    );
+  };
   
   const handleSuggestionClick = (suggestion) => {
     setSearchText(suggestion);
+    setSearchSuggestions([]);
   };
   
   const handlePageChange = (newPage) => {
@@ -495,9 +565,50 @@ function App() {
   const indexOfFirstBot = indexOfLastBot - botsPerPage;
   const currentBots = filteredBots.slice(indexOfFirstBot, indexOfLastBot);
 
+  const handleContextMenu = (e, type, botId, index) => {
+    e.preventDefault();
+    const options = ['Edit', 'Delete'];
+    
+    if ('ontouchstart' in window) {
+      // For mobile
+      const choice = window.prompt(`Choose action (1: Edit, 2: Delete):`, '1');
+      if (choice === '1') handleEdit(botId, type, index);
+      else if (choice === '2') handleDelete(botId, type, index);
+    } else {
+      // For desktop
+      if (window.confirm(`Edit or delete? OK for edit, Cancel for delete`)) {
+        handleEdit(botId, type, index);
+      } else {
+        handleDelete(botId, type, index);
+      }
+    }
+  };
+
+  const handleSystemPromptEdit = (botId, newPrompt) => {
+    const updatedBots = allBots.map(bot => 
+      bot.id === botId ? { ...bot, systemPrompt: newPrompt } : bot
+    );
+    setAllBots(updatedBots);
+    setFilteredBots(prevFiltered => 
+      prevFiltered.map(bot => 
+        bot.id === botId ? { ...bot, systemPrompt: newPrompt } : bot
+      )
+    );
+  };
+
   return (
     <div className="veyr-container">
+        <input 
+          type="file" 
+          id="file-upload" 
+          accept=".csv,.txt" 
+          style={{ display: 'none' }} 
+          onChange={handleUpload}
+        />
         <div className="header">
+            <button className="menu-button" onClick={() => setShowMenu(!showMenu)}>
+                <FaBars />
+            </button>
             <h1>VeyR</h1>
             <span className="header-subtitle">- The Intralox Chatbot Aggregator</span>
             <div className="mode-toggle">
@@ -509,12 +620,26 @@ function App() {
             </button>
             <button
                 className={mode === 'chat' ? 'active' : ''}
-                onClick={() => setMode('chat')}
+                onClick={() => {
+                    setMode('chat');
+                    setSearchText(''); // Clear the search text
+                  }}
             >
                 <FaComment />
             </button>
             </div>
         </div>
+
+        {showMenu && (
+            <div className="menu-overlay">
+                <div className="menu-content">
+                    <button onClick={() => {/* handle profile */}}>Profile</button>
+                    <button onClick={() => {/* handle settings */}}>Settings</button>
+                    <button onClick={() => {/* handle support */}}>Support</button>
+                    <button onClick={() => {/* handle sign out */}}>Sign Out</button>
+                </div>
+            </div>
+        )}
 
         <div className="search-chat-area">
             <div className="input-mode-container">
@@ -558,12 +683,25 @@ function App() {
             </div>
         </div>
 
+        {mode === 'chat' && (
+            <div className="chat-history" ref={chatHistoryRef}>
+            {chatHistory.map((message, index) => (
+                <div key={index} className={`message ${message.sender}`}>
+                {message.text}
+                </div>
+            ))}
+            <button className="clear-chat" onClick={() => setChatHistory([])}>
+                Clear Chat
+            </button>
+            </div>
+        )}
+
       <div className="controls">
         <button onClick={() => setShowHelp(!showHelp)}>
           <FaQuestionCircle /> Help
         </button>
         <button onClick={() => setShowStats(!showStats)}>
-          <FaPlus /> Stats
+          <FaPlus /> Statistics
         </button>
         <button onClick={addBot}>
           <FaPlus /> Add Bot
@@ -572,6 +710,11 @@ function App() {
           {showPinnedOnly ? <FaSearch /> : <FaThumbtack />}
           {showPinnedOnly ? 'Show All' : 'Show Pinned'}
         </button>
+        {pinnedBots.length > 0 && (
+          <button onClick={() => setPinnedBots([])}>
+            <FaThumbtack /> Clear All Pins
+          </button>
+        )}
       </div>
 
       {showHelp && (
@@ -602,7 +745,46 @@ function App() {
           <p>
             <b>Uploading Links:</b> Click "
             <FaFileCsv />
-            " to upload a CSV file with a list of links to add to a bot's knowledge.
+            " to upload a CSV file containing links to add to a bot's knowledge.
+          </p>
+          <p>
+            <b>CSV File Format:</b>
+          </p>
+          <div className="csv-format-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Required</th>
+                  <th>Description</th>
+                  <th>Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>url</code></td>
+                  <td>Yes</td>
+                  <td>Employee Handbook</td>
+                  <td>https://docs.company.com/policies/employee-handbook.pdf</td>
+                </tr>
+                <tr>
+                  <td><code>url</code></td>
+                  <td>No</td>
+                  <td>Customer Service Training 101</td>
+                  <td>https://docs.company.com/customer-service/101.docx</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <b>Important Notes:</b>
+            <ul>
+              <li>Each row must be on a new line</li>
+              <li>Do not include spaces after commas</li>
+              <li>Use quotation marks only if values contain commas</li>
+              <li>Empty lines are ignored</li>
+              <li>URLs should not contain commas</li>
+            </ul>
           </p>
           <p>
             <b>Colored Circles with Check Marks:</b>
@@ -626,18 +808,20 @@ function App() {
 
       {showStats && (
         <div className="stats-section">
-          <h3>Stats</h3>
-          <p>Number of Bots in Chat: {stats.numBots}</p>
+          <h3>Statistics</h3>
+          <p>Number of Bots Pinned in Chat: {stats.numBots}</p>
           <p>Number of Files in Knowledge: {stats.numFiles}</p>
-          <p>Time Span Chatting: {stats.timeSpan}</p>
           <p>Total Tags: {stats.totalTags}</p>
           <p>Tags in Current Chat: {stats.currentTags}</p>
         </div>
       )}
 
         <div className="saved-searches-section">
-            <button className="saved-searches-link" onClick={toggleSavedSearchesList}>
-                Saved Searches
+            <button 
+              className="saved-searches-link" 
+              onClick={toggleSavedSearchesList}
+            >
+              {showSavedSearchesList ? 'Close Saved Searches' : 'Saved Searches'}
             </button>
             {showSavedSearchesList && (
                 <div className="saved-searches-list">
@@ -685,26 +869,12 @@ function App() {
             </div>
             <div className="bot-tags-container">
                 <div className="bot-tags">
+                    {bot.tags.map((tag, index) => (
+                        <span key={index} className="tag">{tag}</span>
+                    ))}
                     <button className="add-tag-button" onClick={() => addTag(bot.id)}>
                         <FaPlus />
                     </button>
-                    <h4>Tags: </h4>
-                    {bot.tags.map((tag, index) => (
-                        <span
-                        key={index}
-                        className="tag"
-                        onContextMenu={(e) => {
-                            e.preventDefault();
-                            if (window.confirm(`Edit or delete tag "${tag}"?`)) {
-                            handleEdit(bot.id, 'tags', index);
-                            } else {
-                            handleDelete(bot.id, 'tags', index);
-                            }
-                        }}
-                        >
-                        {tag}
-                        </span>
-                    ))}
                 </div>
             </div>
             <button className="expand-button" onClick={() => toggleExpand(bot.id)}>
@@ -714,16 +884,6 @@ function App() {
             {expandedBots[bot.id] && (
                 <div className="bot-expanded-content">
                 <div className="bot-links">
-                    <button className="add-link-button" onClick={() => addLink(bot.id)}>
-                    <FaPlus />
-                    </button>
-                    <button
-                    className="upload-links-button"
-                    onClick={() => document.getElementById('file-upload').click()}
-                    >
-                    <FaFileCsv />
-                    </button>
-                    <h4>Links:</h4>
                     {bot.links.map((link, index) => (
                     <div
                         key={index}
@@ -745,17 +905,42 @@ function App() {
                         <span className="last-updated">({link.lastUpdated})</span>
                     </div>
                     ))}
+                    <div className="link-actions">
+                        <button className="add-link-button" onClick={() => addLink(bot.id)}>
+                            <FaPlus />
+                        </button>
+                        <button 
+                            className="upload-links-button" 
+                            onClick={() => {
+                              const fileInput = document.getElementById('file-upload');
+                              if (fileInput) {
+                                fileInput.dataset.botId = bot.id.toString(); // Store the bot ID
+                                fileInput.click();
+                              }
+                            }}
+                        >
+                            <FaFileCsv />
+                        </button>
+                    </div>
                 </div>
                 <div className="bot-system-prompt">
-                    <h4>System Prompt:</h4>
+                    <div className="system-prompt-header">
+                        <h4>System Prompt:</h4>
+                        <button 
+                            className="edit-button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                const textarea = e.target.closest('.bot-system-prompt').querySelector('textarea');
+                                textarea.readOnly = !textarea.readOnly;
+                                textarea.focus();
+                            }}
+                        >
+                            <FaEdit />
+                        </button>
+                    </div>
                     <textarea
-                    value={bot.systemPrompt}
-                    onContextMenu={(e) => {
-                        e.preventDefault();
-                        handleEdit(bot.id, 'systemPrompt');
-                    }}
-                    onChange={(e) => handleEdit(bot.id, 'systemPrompt')}
-                    readOnly
+                        value={bot.systemPrompt}
+                        onChange={(e) => handleSystemPromptEdit(bot.id, e.target.value)}
                     />
                 </div>
                 </div>
@@ -765,19 +950,20 @@ function App() {
       </div>
 
       {/* Pagination */}
-      {filteredBots.length > botsPerPage && (
-        <div className="pagination">
-          {Array.from({ length: Math.ceil(filteredBots.length / botsPerPage) }, (_, i) => (
+      <div className="pagination">
+        <span>
+            Showing {indexOfFirstBot + 1} to {Math.min(indexOfLastBot, filteredBots.length)} of {filteredBots.length}
+        </span>
+        {Array.from({ length: Math.ceil(filteredBots.length / botsPerPage) }, (_, i) => (
             <button
-              key={i + 1}
-              className={currentPage === i + 1 ? 'active' : ''}
-              onClick={() => handlePageChange(i + 1)}
+            key={i + 1}
+            className={currentPage === i + 1 ? 'active' : ''}
+            onClick={() => handlePageChange(i + 1)}
             >
-              {i + 1}
+            {i + 1}
             </button>
-          ))}
+        ))}
         </div>
-      )}
     </div>
   );
 }
