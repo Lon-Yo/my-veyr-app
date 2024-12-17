@@ -307,6 +307,8 @@ function App() {
   const [savedSearches, setSavedSearches] = useState([]);
   const [showPinnedOnly, setShowPinnedOnly] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [tagSuggestions, setTagSuggestions] = useState([]);
+  const [newTagText, setNewTagText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showSavedSearchesList, setShowSavedSearchesList] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -325,21 +327,23 @@ function App() {
     setFilteredBots(initialBots);
     setSavedSearches(getInitialSavedSearches());
     setSearchSuggestions([]);
-    // Set all bots as expanded
     setExpandedBots(initialBots.reduce((acc, bot) => {
       acc[bot.id] = false;
       return acc;
     }, {}));
+    setTimeout(() => handleSearch(), 0);
   }, []);
 
   useEffect(() => {
     if (searchInputRef.current) {
-      searchInputRef.current.style.height = '24px'; // Reset height
+      searchInputRef.current.style.height = '24px';
       const scrollHeight = searchInputRef.current.scrollHeight;
-      const maxHeight = 48; // 2 lines * 24px line height
+      const maxHeight = 48;
       searchInputRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
     }
-    handleSearch();
+    if (searchText.trim()) {
+      handleSearch();
+    }
   }, [searchText]);
 
   useEffect(() => {
@@ -399,20 +403,19 @@ function App() {
       return;
     }
 
-    let filtered = allBots;
-
-    if (searchText) {
-        filtered = allBots.filter(bot => {
+    // Only filter if there's search text
+    if (searchText.trim()) {
+      let filtered = allBots.filter(bot => {
         const botName = bot.name.toLowerCase();
         const botTags = bot.tags.join(' ').toLowerCase();
         const botLinks = bot.links.map(link => link.url.toLowerCase()).join(' ');
         const botSystemPrompt = bot.systemPrompt.toLowerCase();
-    
+        
         // Split the search text into terms and handle AND/OR logic
         const searchTerms = searchText.toLowerCase().split(/\s+(?:and|or)\s+/);
         const andTerms = searchText.toLowerCase().match(/(\w+)\s+and\s+(\w+)/g);
         const orTerms = searchText.toLowerCase().match(/(\w+)\s+or\s+(\w+)/g);
-    
+        
         // Check if each term matches the bot's name, tags, links, or system prompt
         const termMatches = searchTerms.map(term => 
             botName.includes(term) || 
@@ -420,7 +423,7 @@ function App() {
             botLinks.includes(term) || 
             botSystemPrompt.includes(term)
         );
-    
+        
         if (andTerms) {
             // Handle AND conditions: All terms connected by AND must be true
             const andMatches = andTerms.map(andTerm => {
@@ -449,15 +452,15 @@ function App() {
             // Default: If no AND/OR, any term match is sufficient
             return termMatches.some(match => match);
         }
-        });
-    }
-  
-    if (showPinnedOnly) {
-        filtered = filtered.filter(bot => pinnedBots.some(pinnedBot => pinnedBot.id === bot.id));
-    }
+      });
 
-    setFilteredBots(filtered);
-    setCurrentPage(1); // Reset to the first page when searching
+      if (showPinnedOnly) {
+        filtered = filtered.filter(bot => pinnedBots.some(pinnedBot => pinnedBot.id === bot.id));
+      }
+
+      setFilteredBots(filtered);
+      setCurrentPage(1);
+    }
   };
   
 
@@ -581,19 +584,100 @@ function App() {
     }
   };
 
+  const getAllUniqueTags = () => {
+    return [...new Set(allBots.flatMap(bot => bot.tags))];
+  };
+
   const addTag = (botId) => {
-    const newTag = prompt('Enter new tag:');
-    if (newTag) {
-      const updatedBots = allBots.map((bot) => 
-        bot.id === botId ? { ...bot, tags: [...bot.tags, newTag] } : bot
+    setNewTagText('');
+    setTagSuggestions([]);
+    
+    // Create and show the tag input dialog
+    const dialog = document.createElement('div');
+    dialog.className = 'tag-input-dialog';
+    dialog.innerHTML = `
+      <div class="tag-input-content">
+        <h4>Add New Tag</h4>
+        <input type="text" id="new-tag-input" placeholder="Enter tag name..." />
+        <div class="tag-suggestions"></div>
+        <div class="dialog-buttons">
+          <button class="cancel-button">Cancel</button>
+          <button class="add-button">Add</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(dialog);
+
+    const input = dialog.querySelector('#new-tag-input');
+    const suggestionsDiv = dialog.querySelector('.tag-suggestions');
+    
+    input.focus();
+
+    input.addEventListener('input', (e) => {
+      const value = e.target.value.toLowerCase();
+      if (value) {
+        const suggestions = getAllUniqueTags().filter(tag => 
+          tag.toLowerCase().includes(value)
+        );
+        suggestionsDiv.innerHTML = suggestions
+          .map(tag => `<div class="tag-suggestion">${tag}</div>`)
+          .join('');
+      } else {
+        suggestionsDiv.innerHTML = '';
+      }
+    });
+
+    suggestionsDiv.addEventListener('click', (e) => {
+      if (e.target.classList.contains('tag-suggestion')) {
+        input.value = e.target.textContent;
+        suggestionsDiv.innerHTML = '';
+      }
+    });
+
+    const handleAdd = () => {
+      const newTag = input.value.trim();
+      // Check if the bot already has this tag (case-insensitive)
+      const bot = allBots.find(b => b.id === botId);
+      const tagExists = bot.tags.some(tag => 
+        tag.toLowerCase() === newTag.toLowerCase()
       );
-      setAllBots(updatedBots);
-      setFilteredBots(prevFiltered => 
-        prevFiltered.map(bot => 
+      
+      if (!newTag) {
+        alert('Please enter a tag name.');
+        return;
+      }
+      
+      if (tagExists) {
+        alert('This tag already exists on this bot.');
+        return;
+      }
+      
+      if (newTag) {
+        const updatedBots = allBots.map((bot) =>
           bot.id === botId ? { ...bot, tags: [...bot.tags, newTag] } : bot
-        )
-      );
-    }
+        );
+        setAllBots(updatedBots);
+        setFilteredBots(prevFiltered => 
+          prevFiltered.map(bot => 
+            bot.id === botId ? { ...bot, tags: [...bot.tags, newTag] } : bot
+          )
+        );
+      }
+      document.body.removeChild(dialog);
+    };
+
+    dialog.querySelector('.add-button').addEventListener('click', handleAdd);
+    dialog.querySelector('.cancel-button').addEventListener('click', () => {
+      document.body.removeChild(dialog);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        handleAdd();
+      } else if (e.key === 'Escape') {
+        document.body.removeChild(dialog);
+      }
+    });
   };
 
   const addLink = (botId) => {
