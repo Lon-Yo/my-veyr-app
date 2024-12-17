@@ -992,39 +992,40 @@ function App() {
     });
   };
 
-  const LinkStatusDashboard = ({ links, botId }) => {
-    // Generate different stats based on botId
-    const getStatsForBot = (id) => {
-      const baseStats = {
-        1: { success: 342, pending: 15, failed: 3 },    // Customer Support Bot
-        2: { success: 256, pending: 8, failed: 5 },     // Sales Inquiry Bot
-        3: { success: 189, pending: 23, failed: 7 },    // HR Policy Bot
-        4: { success: 423, pending: 12, failed: 4 },    // Technical Support Bot
-        5: { success: 167, pending: 19, failed: 2 },    // Marketing Bot
-        6: { success: 298, pending: 7, failed: 6 },     // Financial Bot
-        7: { success: 156, pending: 14, failed: 8 },    // Legal Bot
-        8: { success: 234, pending: 9, failed: 3 },     // Operations Bot
-        9: { success: 312, pending: 16, failed: 5 },    // Product Development Bot
-        10: { success: 278, pending: 11, failed: 4 },   // IT Support Bot
-        11: { success: 145, pending: 8, failed: 2 },    // Quality Assurance Bot
-        12: { success: 198, pending: 13, failed: 6 },   // Project Management Bot
-        13: { success: 467, pending: 21, failed: 9 },   // Data Analytics Bot
-        14: { success: 223, pending: 17, failed: 3 },   // Compliance Bot
-        15: { success: 178, pending: 12, failed: 4 },   // Training Bot
-        16: { success: 134, pending: 6, failed: 2 },    // Facilities Bot
-        17: { success: 289, pending: 18, failed: 7 },   // Research Bot
-        18: { success: 156, pending: 9, failed: 3 },    // Security Bot
-        19: { success: 245, pending: 14, failed: 5 },   // Supply Chain Bot
-        20: { success: 167, pending: 11, failed: 4 },   // Risk Management Bot
-        21: { success: 143, pending: 8, failed: 2 },    // Change Management Bot
-        22: { success: 198, pending: 15, failed: 6 },   // Innovation Bot
-        23: { success: 267, pending: 13, failed: 5 },   // Documentation Bot
-        24: { success: 189, pending: 10, failed: 3 },   // Process Improvement Bot
-        25: { success: 145, pending: 7, failed: 2 }     // Sustainability Bot
-      };
-      return baseStats[id] || { success: 0, pending: 0, failed: 0 };
+  // Move getStatsForBot outside of LinkStatusDashboard and into the main App component
+  const getStatsForBot = (id) => {
+    const baseStats = {
+      1: { success: 342, pending: 15, failed: 3 },    // Customer Support Bot
+      2: { success: 256, pending: 8, failed: 5 },     // Sales Inquiry Bot
+      3: { success: 189, pending: 23, failed: 7 },    // HR Policy Bot
+      4: { success: 423, pending: 12, failed: 4 },    // Technical Support Bot
+      5: { success: 167, pending: 19, failed: 2 },    // Marketing Bot
+      6: { success: 298, pending: 7, failed: 6 },     // Financial Bot
+      7: { success: 156, pending: 14, failed: 8 },    // Legal Bot
+      8: { success: 234, pending: 9, failed: 3 },     // Operations Bot
+      9: { success: 312, pending: 16, failed: 5 },    // Product Development Bot
+      10: { success: 278, pending: 11, failed: 4 },   // IT Support Bot
+      11: { success: 145, pending: 8, failed: 2 },    // Quality Assurance Bot
+      12: { success: 198, pending: 13, failed: 6 },   // Project Management Bot
+      13: { success: 467, pending: 21, failed: 9 },   // Data Analytics Bot
+      14: { success: 223, pending: 17, failed: 3 },   // Compliance Bot
+      15: { success: 178, pending: 12, failed: 4 },   // Training Bot
+      16: { success: 134, pending: 6, failed: 2 },    // Facilities Bot
+      17: { success: 289, pending: 18, failed: 7 },   // Research Bot
+      18: { success: 156, pending: 9, failed: 3 },    // Security Bot
+      19: { success: 245, pending: 14, failed: 5 },   // Supply Chain Bot
+      20: { success: 167, pending: 11, failed: 4 },   // Risk Management Bot
+      21: { success: 143, pending: 8, failed: 2 },    // Change Management Bot
+      22: { success: 198, pending: 15, failed: 6 },   // Innovation Bot
+      23: { success: 267, pending: 13, failed: 5 },   // Documentation Bot
+      24: { success: 189, pending: 10, failed: 3 },   // Process Improvement Bot
+      25: { success: 145, pending: 7, failed: 2 }     // Sustainability Bot
     };
+    return baseStats[id] || { success: 0, pending: 0, failed: 0 };
+  };
 
+  // Update LinkStatusDashboard to use the passed getStatsForBot function
+  const LinkStatusDashboard = ({ links, botId }) => {
     const stats = getStatsForBot(botId);
 
     return (
@@ -1050,6 +1051,13 @@ function App() {
 
   // Add a new state to track edit mode for system prompts
   const [editingPrompts, setEditingPrompts] = useState({});
+
+  // Add this effect to handle chat history scrolling
+  useEffect(() => {
+    if (chatHistoryRef.current && mode === 'chat') {
+      chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+    }
+  }, [chatHistory, mode]);
 
   return (
     <div className="veyr-container" data-mode={mode}>
@@ -1127,7 +1135,9 @@ function App() {
                     placeholder={
                       mode === 'search'
                         ? 'Search for chatbots...'
-                        : `Chat with ${pinnedBots.length} selected chatbot${pinnedBots.length !== 1 ? 's' : ''}`
+                        : pinnedBots.length > 0
+                          ? `Chat with ${pinnedBots.length} selected chatbot${pinnedBots.length !== 1 ? 's' : ''}`
+                          : 'Please pick your chatbot(s) on the search page'
                     }
                     value={searchText}
                     onChange={handleSearchTextChange}
@@ -1173,6 +1183,65 @@ function App() {
                 )}
             </div>
         </div>
+
+        {showHelp && (
+          <div className="help-section">
+            <h3>Help</h3>
+            <p>Welcome to VeyR - The Intralox Chatbot Aggregator</p>
+            <h4>Getting Started:</h4>
+            <ul>
+              <li>Search for chatbots using keywords in the search bar</li>
+              <li>Pin chatbots by clicking the pin icon</li>
+              <li>Switch to chat mode to interact with pinned chatbots</li>
+            </ul>
+            <h4>Features:</h4>
+            <ul>
+              <li>Search: Find chatbots by name, tags, or content</li>
+              <li>Pin: Save chatbots for quick access</li>
+              <li>Tags: Filter chatbots by category</li>
+              <li>SharePoint Integration: Access and manage SharePoint documents</li>
+              <li>System Prompts: Customize bot behavior</li>
+            </ul>
+            <h4>Tips:</h4>
+            <ul>
+              <li>Use AND/OR in search for complex queries</li>
+              <li>Pin multiple bots to chat with them simultaneously</li>
+              <li>Save frequent searches for quick access</li>
+            </ul>
+          </div>
+        )}
+
+        {showStats && (
+          <div className="stats-section">
+            <h3>Statistics for Pinned Chatbots</h3>
+            <div className="stats-grid">
+              <div className="stat-item">
+                <FaCheckCircle className="status-icon success" />
+                <h4>Processed</h4>
+                <p>{pinnedBots.reduce((sum, bot) => {
+                  const stats = getStatsForBot(bot.id);
+                  return sum + stats.success;
+                }, 0)}</p>
+              </div>
+              <div className="stat-item">
+                <FaCheckCircle className="status-icon pending" />
+                <h4>Processing</h4>
+                <p>{pinnedBots.reduce((sum, bot) => {
+                  const stats = getStatsForBot(bot.id);
+                  return sum + stats.pending;
+                }, 0)}</p>
+              </div>
+              <div className="stat-item">
+                <FaTimesCircle className="status-icon failed" />
+                <h4>Failed</h4>
+                <p>{pinnedBots.reduce((sum, bot) => {
+                  const stats = getStatsForBot(bot.id);
+                  return sum + stats.failed;
+                }, 0)}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {mode === 'chat' && (
           <>
