@@ -19,6 +19,7 @@ import {
   FaChevronUp,
   FaLink,
 } from 'react-icons/fa';
+import { GiHamburgerMenu } from 'react-icons/gi';
 
 function App() {
   const getInitialBots = () => {
@@ -1047,6 +1048,9 @@ function App() {
     );
   };
 
+  // Add a new state to track edit mode for system prompts
+  const [editingPrompts, setEditingPrompts] = useState({});
+
   return (
     <div className="veyr-container" data-mode={mode}>
         <input 
@@ -1062,9 +1066,15 @@ function App() {
             onClick={() => setShowMenu(!showMenu)}
             style={{ display: showMenu ? 'none' : 'flex' }}
           >
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
+            {window.innerWidth <= 768 ? (
+              <GiHamburgerMenu size={24} />
+            ) : (
+              <>
+                <span className="hamburger-line"></span>
+                <span className="hamburger-line"></span>
+                <span className="hamburger-line"></span>
+              </>
+            )}
           </button>
           <div className="header-content">
             <div className="title-row">
@@ -1315,14 +1325,24 @@ function App() {
                             onClick={(e) => {
                                 e.preventDefault();
                                 const textarea = e.target.closest('.bot-system-prompt').querySelector('textarea');
-                                textarea.readOnly = !textarea.readOnly;
-                                textarea.focus();
+                                if (!editingPrompts[bot.id]) {
+                                    // Entering edit mode
+                                    textarea.readOnly = false;
+                                    textarea.focus();
+                                    setEditingPrompts(prev => ({ ...prev, [bot.id]: true }));
+                                } else {
+                                    // Saving changes
+                                    textarea.readOnly = true;
+                                    setEditingPrompts(prev => ({ ...prev, [bot.id]: false }));
+                                    handleSystemPromptEdit(bot.id, textarea.value);
+                                }
                             }}
                         >
-                            <FaEdit />
+                            {editingPrompts[bot.id] ? <FaSave /> : <FaEdit />}
                         </button>
                     </div>
                     <textarea
+                        readOnly={!editingPrompts[bot.id]}
                         value={bot.systemPrompt}
                         onChange={(e) => handleSystemPromptEdit(bot.id, e.target.value)}
                     />
