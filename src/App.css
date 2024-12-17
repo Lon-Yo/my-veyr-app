@@ -277,8 +277,10 @@
 }
 
 .saved-searches-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
   margin-bottom: 20px;
-  display: block !important; /* Override any display:none */
 }
 
 .saved-searches-link {
@@ -1697,4 +1699,44 @@
 
 .chat-submit-button.disabled:hover {
   background: #ccc;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.dashboard-section {
+  background: #f8f8f8;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.dashboard-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.link-status-dashboard {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+}
+
+.sort-toggle-button {
+  color: #000 !important;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 5px 10px;
+  background: none;
+  border: none;
+  font-size: 16px;
+}
+
+.sort-toggle-button:hover {
+  background-color: #f0f0f0;
+  border-radius: 4px;
 }

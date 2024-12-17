@@ -427,44 +427,83 @@ function App() {
       ];
   };
 
+  // Add new state for sort mode
+  const [sortMode, setSortMode] = useState('alpha'); // 'alpha' or 'rank'
+
+  // Add sort function
+  const sortBots = (bots) => {
+    return [...bots].sort((a, b) => {
+      if (sortMode === 'alpha') {
+        return a.name.localeCompare(b.name);
+      } else {
+        const metricsA = botMetrics[a.id];
+        const metricsB = botMetrics[b.id];
+        return metricsB.queries - metricsA.queries; // Higher queries first
+      }
+    });
+  };
+
+  // Update the sort toggle button click handler
+  const handleSortToggle = () => {
+    setSortMode(prev => prev === 'alpha' ? 'rank' : 'alpha');
+    // Immediately resort the current filtered bots
+    setFilteredBots(prev => sortBots(prev));
+    // Reset to first page
+    setCurrentPage(1);
+  };
+
+  // Update the useEffect for filtering to include sorting
+  useEffect(() => {
+    if (mode === 'chat' || showPinnedOnly) {
+      setFilteredBots(sortBots(pinnedBots));
+    } else if (searchText.trim()) {
+      handleSearch();
+    } else {
+      setFilteredBots(sortBots(allBots));
+    }
+  }, [sortMode]); // Add sortMode as dependency
+
+  // Update handleSearch to include sorting
   const handleSearch = () => {
     if (mode === 'chat') return;
 
     if (searchText.trim()) {
+      // Split the search text into OR groups
+      const orGroups = searchText.split(/\s+OR\s+/);
+      
       let filtered = allBots.filter(bot => {
-        const botName = bot.name.toLowerCase();
-        const botTags = bot.tags.join(' ').toLowerCase();
-        const botLinks = bot.links.map(link => link.url.toLowerCase()).join(' ');
-        const botSystemPrompt = bot.systemPrompt.toLowerCase();
-        
-        // Split search terms by '+' for OR conditions, then by space for AND conditions
-        const searchTerms = searchText.toLowerCase().trim();
-        const orGroups = searchTerms.split('+');
-        
+        // For each bot, check if it matches any of the OR groups
         return orGroups.some(group => {
-          const andTerms = group.trim().split(' ').filter(term => term.length > 0);
-          return andTerms.every(term => {
-            const searchTerm = term.trim();
-            return searchTerm && (
-              botName.includes(searchTerm) || 
-              botTags.includes(searchTerm) || 
-              botLinks.includes(searchTerm) || 
-              botSystemPrompt.includes(searchTerm)
-            );
-          });
+          // Remove parentheses and split into individual terms
+          const terms = group.replace(/[()]/g, '').trim().split(/\s+/);
+          
+          // Get all searchable text from the bot
+          const botText = [
+            bot.name.toLowerCase(),
+            ...bot.tags.map(tag => tag.toLowerCase())
+          ].join(' ');
+
+          // Match if ALL terms in the group match the bot text (AND condition)
+          return terms.every(term => 
+            botText.includes(term.toLowerCase())
+          );
         });
       });
 
       if (showPinnedOnly) {
-        filtered = filtered.filter(bot => pinnedBots.some(pinnedBot => pinnedBot.id === bot.id));
+        filtered = filtered.filter(bot => 
+          pinnedBots.some(pinnedBot => pinnedBot.id === bot.id)
+        );
       }
 
-      setFilteredBots(filtered);
+      // Apply sorting before setting filtered bots
+      setFilteredBots(sortBots(filtered));
       if (filtered.length <= (currentPage - 1) * botsPerPage) {
         setCurrentPage(1);
       }
     } else {
-      setFilteredBots(showPinnedOnly ? pinnedBots : allBots);
+      // Apply sorting to all bots or pinned bots
+      setFilteredBots(sortBots(showPinnedOnly ? pinnedBots : allBots));
     }
   };
   
@@ -1009,26 +1048,97 @@ function App() {
     return baseStats[id] || { success: 0, pending: 0, failed: 0 };
   };
 
-  // Update LinkStatusDashboard to use the passed getStatsForBot function
+  // Update the getBotMetrics function to generate whole numbers
+  const getBotMetrics = (botId) => {
+    // Use botId as seed for consistent random numbers
+    const seed = botId * 12345;
+    const rand = (min, max) => {
+      const x = Math.sin(seed) * 10000;
+      return Math.floor((x - Math.floor(x)) * (max - min + 1)) + min;
+    };
+
+    // Generate chats (1-70,000) as whole number
+    const chats = Math.floor(rand(1, 70000));
+    
+    // Generate queries (approximately 5x chats) as whole number
+    const queries = Math.floor(chats * 5 + rand(-chats/2, chats/2));
+
+    return {
+      chats,
+      queries,
+      rank: 0  // Will be a whole number assigned in calculateRanks
+    };
+  };
+
+  // Add this function to calculate ranks based on query volumes
+  const calculateRanks = () => {
+    const allMetrics = Array.from({ length: 25 }, (_, i) => ({
+      id: i + 1,
+      ...getBotMetrics(i + 1)
+    }));
+    
+    // Sort by queries in descending order
+    allMetrics.sort((a, b) => b.queries - a.queries);
+    
+    // Assign ranks
+    const rankedMetrics = {};
+    allMetrics.forEach((metric, index) => {
+      rankedMetrics[metric.id] = {
+        ...metric,
+        rank: index + 1
+      };
+    });
+    
+    return rankedMetrics;
+  };
+
+  // Store the calculated metrics
+  const botMetrics = calculateRanks();
+
+  // Update the LinkStatusDashboard component to display whole numbers
   const LinkStatusDashboard = ({ links, botId }) => {
     const stats = getStatsForBot(botId);
+    const metrics = botMetrics[botId];
 
     return (
-      <div className="link-status-dashboard">
-        <div className="status-item">
-          <FaCheckCircle className="status-icon success" />
-          <span className="status-count">{stats.success}</span>
-          <span className="status-label">Processed</span>
+      <div className="dashboard-container">
+        <div className="dashboard-section">
+          <h4>Files</h4>
+          <div className="link-status-dashboard">
+            <div className="status-item">
+              <FaCheckCircle className="status-icon success" />
+              <span className="status-count">{stats.success}</span>
+              <span className="status-label">Processed</span>
+            </div>
+            <div className="status-item">
+              <FaCheckCircle className="status-icon pending" />
+              <span className="status-count">{stats.pending}</span>
+              <span className="status-label">Processing</span>
+            </div>
+            <div className="status-item">
+              <FaTimesCircle className="status-icon failed" />
+              <span className="status-count">{stats.failed}</span>
+              <span className="status-label">Failed</span>
+            </div>
+          </div>
         </div>
-        <div className="status-item">
-          <FaCheckCircle className="status-icon pending" />
-          <span className="status-count">{stats.pending}</span>
-          <span className="status-label">Processing</span>
-        </div>
-        <div className="status-item">
-          <FaTimesCircle className="status-icon failed" />
-          <span className="status-count">{stats.failed}</span>
-          <span className="status-label">Failed</span>
+        
+        <div className="dashboard-section">
+          <h4>Metrics</h4>
+          <div className="link-status-dashboard">
+            <div className="status-item">
+              <span className="status-count">{Math.floor(metrics.chats).toLocaleString()}</span>
+              <span className="status-label">Chats</span>
+            </div>
+            <div className="status-item">
+              <span className="status-count">{Math.floor(metrics.queries).toLocaleString()}</span>
+              <span className="status-label">Queries</span>
+            </div>
+            <div className="status-item">
+              <span className="status-count">#{metrics.rank}</span>
+              <span className="status-label">Overall Rank</span>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -1140,7 +1250,15 @@ function App() {
                       mode === 'search'
                         ? 'Search for chatbots...'
                         : pinnedBots.length > 0
-                          ? `Chat with ${pinnedBots.length} selected chatbot${pinnedBots.length !== 1 ? 's' : ''}`
+                          ? pinnedBots.length <= 3
+                            ? `Chat with ${pinnedBots.map(bot => bot.name).join(', ')}`
+                            : (() => {
+                                // Get 3 random bots from the pinned bots
+                                const randomBots = [...pinnedBots]
+                                  .sort(() => 0.5 - Math.random())
+                                  .slice(0, 3);
+                                return `Chat with ${randomBots.map(bot => bot.name).join(', ')} & ${pinnedBots.length - 3} other chatbots`;
+                              })()
                           : 'Please pick your chatbot(s) on the search page'
                     }
                     value={searchText}
@@ -1257,6 +1375,12 @@ function App() {
                 >
                   {showSavedSearchesList ? 'Close Saved Searches' : 'Saved Searches'}
                 </button>
+                <button
+                  className="sort-toggle-button"
+                  onClick={handleSortToggle}
+                >
+                  Sort by: {sortMode === 'alpha' ? 'A-Z' : 'Rank'}
+                </button>
                 {showSavedSearchesList && (
                   <div className="saved-searches-list">
                     {savedSearches.map((search, index) => (
@@ -1276,25 +1400,37 @@ function App() {
                 <div className="help-section">
                   <h3>Help</h3>
                   <p>Welcome to VeyR - The Intralox Chatbot Aggregator</p>
+                  
                   <h4>Getting Started:</h4>
                   <ul>
                     <li>Search for chatbots using keywords in the search bar</li>
                     <li>Pin chatbots by clicking the pin icon</li>
                     <li>Switch to chat mode to interact with pinned chatbots</li>
                   </ul>
+                  
+                  <h4>Search Tips:</h4>
+                  <ul>
+                    <li><strong>Single Word:</strong> Type "support" to find any chatbot with "support" in its name or tags</li>
+                    <li><strong>Multiple Words (AND):</strong> Type "technical support" to find chatbots containing BOTH "technical" AND "support"</li>
+                    <li><strong>Multiple Groups (OR):</strong> Type "technical support OR sales customer" to find chatbots containing EITHER (both "technical" AND "support") OR (both "sales" AND "customer")</li>
+                    <li><strong>Complex Searches:</strong> You can combine multiple groups, like "hr policy OR technical support OR customer service"</li>
+                    <li><strong>Optional Parentheses:</strong> You can use parentheses for clarity: "(hr policy) OR (technical support)"</li>
+                  </ul>
+                  
                   <h4>Features:</h4>
                   <ul>
-                    <li>Search: Find chatbots by name, tags, or content</li>
                     <li>Pin: Save chatbots for quick access</li>
                     <li>Tags: Filter chatbots by category</li>
                     <li>SharePoint Integration: Access and manage SharePoint documents</li>
                     <li>System Prompts: Customize bot behavior</li>
                   </ul>
-                  <h4>Tips:</h4>
+                  
+                  <h4>Search Examples:</h4>
                   <ul>
-                    <li>Use AND/OR in search for complex queries</li>
-                    <li>Pin multiple bots to chat with them simultaneously</li>
-                    <li>Save frequent searches for quick access</li>
+                    <li>"support" → Finds any bot with "support" in name or tags</li>
+                    <li>"technical support" → Finds bots with both words</li>
+                    <li>"hr policy OR sales" → Finds bots with either both "hr" and "policy", or "sales"</li>
+                    <li>"customer service OR technical support OR helpdesk" → Finds bots matching any of these combinations</li>
                   </ul>
                 </div>
               )}
@@ -1447,7 +1583,7 @@ function App() {
                     const totalPages = Math.ceil(filteredBots.length / botsPerPage);
                     const pageNumbers = new Set(); // Use Set to prevent duplicates
 
-                    // Always add first page if we're not on it
+                    // Always add first page if we're not on page 1
                     if (currentPage > 1) {
                       pageNumbers.add(1);
                     }
@@ -1457,12 +1593,15 @@ function App() {
                       pageNumbers.add('start-ellipsis');
                     }
 
-                    // Add pages around current page
+                    // Add pages around current page, including current page
                     for (let i = Math.max(2, currentPage - halfVisible); 
                          i <= Math.min(totalPages - 1, currentPage + halfVisible); 
                          i++) {
                       pageNumbers.add(i);
                     }
+
+                    // Always add current page if it's not already added
+                    pageNumbers.add(currentPage);
 
                     // Add ellipsis before last page if needed
                     if (currentPage < totalPages - halfVisible - 1) {
@@ -1474,21 +1613,29 @@ function App() {
                       pageNumbers.add(totalPages);
                     }
 
-                    // Render the page numbers
-                    return Array.from(pageNumbers).map((pageNum, index) => {
-                      if (pageNum === 'start-ellipsis' || pageNum === 'end-ellipsis') {
-                        return <span key={`ellipsis-${index}`}>...</span>;
-                      }
-                      return (
-                        <button
-                          key={pageNum}
-                          className={currentPage === pageNum ? 'active' : ''}
-                          onClick={() => handlePageChange(pageNum)}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    });
+                    // Convert to array and sort to maintain proper order
+                    return Array.from(pageNumbers)
+                      .sort((a, b) => {
+                        if (a === 'start-ellipsis') return -1;
+                        if (b === 'start-ellipsis') return 1;
+                        if (a === 'end-ellipsis') return 1;
+                        if (b === 'end-ellipsis') return -1;
+                        return a - b;
+                      })
+                      .map((pageNum, index) => {
+                        if (pageNum === 'start-ellipsis' || pageNum === 'end-ellipsis') {
+                          return <span key={`ellipsis-${index}`}>...</span>;
+                        }
+                        return (
+                          <button
+                            key={pageNum}
+                            className={currentPage === pageNum ? 'active' : ''}
+                            onClick={() => handlePageChange(pageNum)}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      });
                   })()}
                 </div>
               </div>
