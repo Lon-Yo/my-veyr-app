@@ -14,6 +14,7 @@ import {
   FaFileCsv,
   FaArrowUp,
   FaBars,
+  FaTimes,
 } from 'react-icons/fa';
 
 function App() {
@@ -120,10 +121,177 @@ function App() {
           ],
           systemPrompt: 'You are an IT support assistant. You are knowledgeable about IT security policies and network infrastructure. Please assist with questions related to IT systems and security.',
         },
+        {
+          id: 11,
+          name: 'Quality Assurance Bot',
+          tags: ['qa', 'testing', 'quality', 'standards'],
+          links: [
+            { url: 'https://example.com/qa-guidelines.pdf', version: '2.0', lastUpdated: '2023-07-24', status: 'success' },
+            { url: 'https://example.com/testing-procedures.docx', version: '1.3', lastUpdated: '2023-07-28', status: 'success' },
+          ],
+          systemPrompt: 'You are a QA assistant. Help with testing procedures and quality standards.',
+        },
+        {
+          id: 12,
+          name: 'Project Management Bot',
+          tags: ['project', 'management', 'planning', 'agile', 'scrum'],
+          links: [
+            { url: 'https://example.com/pm-handbook.pdf', version: '3.0', lastUpdated: '2023-07-25', status: 'success' },
+          ],
+          systemPrompt: 'You are a project management assistant. Help with project planning and agile methodologies.',
+        },
+        {
+          id: 13,
+          name: 'Data Analytics Bot',
+          tags: ['data', 'analytics', 'reporting', 'metrics'],
+          links: [
+            { url: 'https://example.com/analytics-guide.pdf', version: '1.5', lastUpdated: '2023-07-26', status: 'success' },
+          ],
+          systemPrompt: 'You are a data analytics assistant. Help with data interpretation and reporting.',
+        },
+        {
+          id: 14,
+          name: 'Compliance Bot',
+          tags: ['compliance', 'regulations', 'audit', 'standards'],
+          links: [
+            { url: 'https://example.com/compliance-docs.pdf', version: '2.1', lastUpdated: '2023-07-27', status: 'success' },
+          ],
+          systemPrompt: 'You are a compliance assistant. Help with regulatory requirements and audits.',
+        },
+        {
+          id: 15,
+          name: 'Training Bot',
+          tags: ['training', 'learning', 'development', 'education'],
+          links: [
+            { url: 'https://example.com/training-materials.pdf', version: '1.8', lastUpdated: '2023-07-28', status: 'success' },
+          ],
+          systemPrompt: 'You are a training assistant. Help with learning and development programs.',
+        },
+        {
+          id: 16,
+          name: 'Facilities Bot',
+          tags: ['facilities', 'maintenance', 'building', 'equipment'],
+          links: [
+            { url: 'https://example.com/facilities-manual.pdf', version: '1.2', lastUpdated: '2023-07-29', status: 'success' },
+          ],
+          systemPrompt: 'You are a facilities assistant. Help with building maintenance and equipment.',
+        },
+        {
+          id: 17,
+          name: 'Research Bot',
+          tags: ['research', 'development', 'innovation', 'studies'],
+          links: [
+            { url: 'https://example.com/research-papers.pdf', version: '2.4', lastUpdated: '2023-07-30', status: 'success' },
+          ],
+          systemPrompt: 'You are a research assistant. Help with research and development projects.',
+        },
+        {
+          id: 18,
+          name: 'Security Bot',
+          tags: ['security', 'safety', 'protection', 'protocols'],
+          links: [
+            { url: 'https://example.com/security-protocols.pdf', version: '3.2', lastUpdated: '2023-07-31', status: 'success' },
+          ],
+          systemPrompt: 'You are a security assistant. Help with safety and security procedures.',
+        },
+        {
+          id: 19,
+          name: 'Supply Chain Bot',
+          tags: ['supply', 'chain', 'logistics', 'inventory'],
+          links: [
+            { url: 'https://example.com/supply-chain-docs.pdf', version: '1.6', lastUpdated: '2023-08-01', status: 'success' },
+          ],
+          systemPrompt: 'You are a supply chain assistant. Help with logistics and inventory management.',
+        },
+        {
+          id: 20,
+          name: 'Risk Management Bot',
+          tags: ['risk', 'management', 'assessment', 'mitigation'],
+          links: [
+            { url: 'https://example.com/risk-management.pdf', version: '2.3', lastUpdated: '2023-08-02', status: 'success' },
+          ],
+          systemPrompt: 'You are a risk management assistant. Help with risk assessment and mitigation strategies.',
+        },
+        {
+          id: 21,
+          name: 'Change Management Bot',
+          tags: ['change', 'management', 'transition', 'transformation'],
+          links: [
+            { url: 'https://example.com/change-management.pdf', version: '1.4', lastUpdated: '2023-08-03', status: 'success' },
+          ],
+          systemPrompt: 'You are a change management assistant. Help with organizational transitions.',
+        },
+        {
+          id: 22,
+          name: 'Innovation Bot',
+          tags: ['innovation', 'ideas', 'creativity', 'development'],
+          links: [
+            { url: 'https://example.com/innovation-guide.pdf', version: '1.9', lastUpdated: '2023-08-04', status: 'success' },
+          ],
+          systemPrompt: 'You are an innovation assistant. Help with creative problem-solving and new ideas.',
+        },
+        {
+          id: 23,
+          name: 'Documentation Bot',
+          tags: ['documentation', 'writing', 'procedures', 'manuals'],
+          links: [
+            { url: 'https://example.com/documentation-guide.pdf', version: '2.2', lastUpdated: '2023-08-05', status: 'success' },
+          ],
+          systemPrompt: 'You are a documentation assistant. Help with writing and maintaining documentation.',
+        },
+        {
+          id: 24,
+          name: 'Process Improvement Bot',
+          tags: ['process', 'improvement', 'optimization', 'efficiency'],
+          links: [
+            { url: 'https://example.com/process-improvement.pdf', version: '1.7', lastUpdated: '2023-08-06', status: 'success' },
+          ],
+          systemPrompt: 'You are a process improvement assistant. Help with optimizing workflows and procedures.',
+        },
+        {
+          id: 25,
+          name: 'Sustainability Bot',
+          tags: ['sustainability', 'environmental', 'green', 'eco-friendly'],
+          links: [
+            { url: 'https://example.com/sustainability-guide.pdf', version: '1.1', lastUpdated: '2023-08-07', status: 'success' },
+          ],
+          systemPrompt: 'You are a sustainability assistant. Help with environmental initiatives and green practices.',
+        }
       ];
   };
 
-  const botsPerPage = 6;
+  const calculateBotsPerPage = () => {
+    // Get the container width
+    const container = document.querySelector('.bot-list');
+    if (!container) return 9; // Default to 9 (3 rows × 3 columns) if container not found
+
+    // Calculate how many columns can fit (based on the 350px min-width from CSS)
+    const containerWidth = container.clientWidth;
+    const cardMinWidth = 350; // This should match the minmax value in CSS
+    const columns = Math.floor(containerWidth / cardMinWidth);
+
+    // Return columns × 3 rows
+    return columns * 3;
+  };
+
+  const [botsPerPage, setBotsPerPage] = useState(9); // Start with default 9
+
+  // Add resize listener to update botsPerPage
+  useEffect(() => {
+    const handleResize = () => {
+      setBotsPerPage(calculateBotsPerPage());
+    };
+
+    // Initial calculation
+    handleResize();
+
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const chatInputRef = useRef(null);
   const searchInputRef = useRef(null);
   const chatHistoryRef = useRef(null);
@@ -178,6 +346,13 @@ function App() {
     // Hide chat history when switching to search mode
     if (mode === 'search') {
       setChatHistory([]);
+      // Show all bots in search mode if not showing pinned only
+      if (!showPinnedOnly) {
+        handleSearch();
+      }
+    } else {
+      // In chat mode, only show pinned bots
+      setFilteredBots(pinnedBots);
     }
   }, [mode]);
 
@@ -185,16 +360,21 @@ function App() {
     if (showPinnedOnly) {
       setFilteredBots(pinnedBots);
     } else {
-      handleSearch(); // Call handleSearch to re-filter based on searchText
+      // Only show all bots if in search mode
+      if (mode === 'search') {
+        handleSearch();
+      }
     }
     setCurrentPage(1);
   }, [showPinnedOnly]);
 
+  // Update filtered bots when pins change
   useEffect(() => {
-    if (chatHistoryRef.current) {
-      chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+    if (mode === 'chat' || showPinnedOnly) {
+      setFilteredBots(pinnedBots);
+      setCurrentPage(1);
     }
-  }, [chatHistory]);
+  }, [pinnedBots, mode]);
 
   const getInitialSavedSearches = () => {
     return [
@@ -214,6 +394,11 @@ function App() {
   };
 
   const handleSearch = () => {
+    // Don't perform search in chat mode
+    if (mode === 'chat') {
+      return;
+    }
+
     let filtered = allBots;
 
     if (searchText) {
@@ -523,10 +708,12 @@ function App() {
 
   const stats = {
     numBots: pinnedBots.length,
-    numFiles: filteredBots.reduce((total, bot) => total + bot.links.length, 0),
-    numPinnedFiles: pinnedBots.reduce((total, bot) => total + bot.links.length, 0),
-    totalTags: new Set(allBots.flatMap((bot) => bot.tags)).size,
-    currentTags: new Set(pinnedBots.flatMap((bot) => bot.tags)).size,
+    numFiles: pinnedBots.length > 0 
+      ? pinnedBots.reduce((total, bot) => total + bot.links.length, 0)
+      : filteredBots.reduce((total, bot) => total + bot.links.length, 0),
+    totalTags: pinnedBots.length > 0
+      ? new Set(pinnedBots.flatMap((bot) => bot.tags)).size
+      : new Set(filteredBots.flatMap((bot) => bot.tags)).size,
   };
 
   const handleSearchTextChange = (e) => {
@@ -660,6 +847,19 @@ function App() {
                     }
                     }}
                 />
+                {searchText && (
+                    <button 
+                        className="clear-text-button"
+                        onClick={() => {
+                            setSearchText('');
+                            if (searchInputRef.current) {
+                                searchInputRef.current.focus();
+                            }
+                        }}
+                    >
+                        <FaTimes />
+                    </button>
+                )}
 
                 {mode === 'search' && (
                     <div className="search-suggestions">
@@ -711,7 +911,12 @@ function App() {
           {showPinnedOnly ? 'Show All' : 'Show Pinned'}
         </button>
         {pinnedBots.length > 0 && (
-          <button onClick={() => setPinnedBots([])}>
+          <button onClick={() => {
+            setPinnedBots([]);
+            setMode('search');
+            setShowPinnedOnly(false);
+            handleSearch();
+          }}>
             <FaThumbtack /> Clear All Pins
           </button>
         )}
@@ -757,7 +962,7 @@ function App() {
                   <th>Column</th>
                   <th>Required</th>
                   <th>Description</th>
-                  <th>Example</th>
+                  <th>URL</th>
                 </tr>
               </thead>
               <tbody>
@@ -809,10 +1014,19 @@ function App() {
       {showStats && (
         <div className="stats-section">
           <h3>Statistics</h3>
-          <p>Number of Bots Pinned in Chat: {stats.numBots}</p>
-          <p>Number of Files in Knowledge: {stats.numFiles}</p>
-          <p>Total Tags: {stats.totalTags}</p>
-          <p>Tags in Current Chat: {stats.currentTags}</p>
+          {pinnedBots.length > 0 ? (
+            <>
+              <p>Pinned Bots: {stats.numBots}</p>
+              <p>Files in Pinned Bots: {stats.numFiles}</p>
+              <p>Tags in Pinned Bots: {stats.totalTags}</p>
+            </>
+          ) : (
+            <>
+              <p>Total Bots: {filteredBots.length}</p>
+              <p>Total Files: {stats.numFiles}</p>
+              <p>Total Tags: {stats.totalTags}</p>
+            </>
+          )}
         </div>
       )}
 
