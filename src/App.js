@@ -803,11 +803,24 @@ function App() {
   const handleSearchTextChange = (e) => {
     const newSearchText = e.target.value;
     setSearchText(newSearchText);
+   
+    // Only resize if content exceeds 3 lines
+    if (searchInputRef.current) {
+      const lineHeight = 24;
+      const minHeight = lineHeight * 3;  // 3 lines
+      const maxHeight = 200;  // maximum height
+      
+      if (searchInputRef.current.scrollHeight > minHeight) {
+        searchInputRef.current.style.height = 
+          `${Math.min(searchInputRef.current.scrollHeight, maxHeight)}px`;
+      }
+    }
+   
     setSearchSuggestions(
-        newSearchText
+      newSearchText
         ? getInitialSearchSuggestions().filter((item) =>
             item.toLowerCase().includes(newSearchText.toLowerCase())
-            )
+          )
         : []
     );
   };
@@ -877,8 +890,13 @@ function App() {
           onChange={handleUpload}
         />
         <div className="header">
-            <button className="menu-button" onClick={() => setShowMenu(!showMenu)}>
-                <FaBars />
+            <button 
+                className="hamburger-menu" 
+                onClick={() => setShowMenu(!showMenu)}
+            >
+                <span className="hamburger-line"></span>
+                <span className="hamburger-line"></span>
+                <span className="hamburger-line"></span>
             </button>
             <h1>VeyR</h1>
             <span className="header-subtitle">- The Intralox Chatbot Aggregator</span>
@@ -902,14 +920,18 @@ function App() {
         </div>
 
         {showMenu && (
-            <div className="menu-overlay">
-                <div className="menu-content">
+            <>
+            <div 
+                className={`menu-overlay ${showMenu ? 'active' : ''}`}
+                onClick={() => setShowMenu(false)}
+            ></div>
+            <div className={`menu-content ${showMenu ? 'active' : ''}`}>
                     <button onClick={() => {/* handle profile */}}>Profile</button>
                     <button onClick={() => {/* handle settings */}}>Settings</button>
                     <button onClick={() => {/* handle support */}}>Support</button>
                     <button onClick={() => {/* handle sign out */}}>Sign Out</button>
-                </div>
             </div>
+            </>
         )}
 
         <div className="search-chat-area">
@@ -969,14 +991,16 @@ function App() {
 
         {mode === 'chat' && (
             <div className="chat-history" ref={chatHistoryRef}>
-            {chatHistory.map((message, index) => (
+              {chatHistory.map((message, index) => (
                 <div key={index} className={`message ${message.sender}`}>
-                {message.text}
+                  {message.text}
                 </div>
-            ))}
-            <button className="clear-chat" onClick={() => setChatHistory([])}>
-                Clear Chat
-            </button>
+              ))}
+              {chatHistory.length > 0 && (
+                <button className="clear-chat" onClick={() => setChatHistory([])}>
+                  Clear Chat
+                </button>
+              )}
             </div>
         )}
 
