@@ -303,7 +303,7 @@ function App() {
   const searchInputRef = useRef(null);
   const chatHistoryRef = useRef(null);
 
-  const [mode, setMode] = useState('search');
+  const [mode, setMode] = useState('chat');
   const [searchText, setSearchText] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [filteredBots, setFilteredBots] = useState([]);
@@ -509,28 +509,31 @@ function App() {
   
 
     const handleChatSubmit = () => {
-      // Don't allow submission if no bots are pinned
-      if (pinnedBots.length === 0) return;
-      
-      // Don't submit empty messages
-      if (searchText.trim() === '') return;
+      if (!searchText.trim() || (!isOrchestratorMode && pinnedBots.length === 0)) return;
 
-      const newMessage = {
+      // Add user message
+      const userMessage = {
         text: searchText,
-        sender: 'user',
+        sender: 'user'
       };
 
-      setChatHistory([...chatHistory, newMessage]);
+      // Add bot response
+      const botResponse = {
+        text: isOrchestratorMode 
+          ? "The orchestrator is analyzing your message..."
+          : `Response from ${pinnedBots.map(bot => bot.name).join(', ')}...`,
+        sender: 'bot'
+      };
+
+      setChatHistory(prev => [...prev, userMessage, botResponse]);
       setSearchText('');
 
-      // Simulate chatbot response (replace with actual API call)
-      setTimeout(() => {
-        const botResponse = {
-          text: `This is a simulated response from ${pinnedBots.map(bot => bot.name).join(', ')}.`,
-          sender: 'bot',
-        };
-        setChatHistory((prevChatHistory) => [...prevChatHistory, botResponse]);
-      }, 500);
+      // Scroll to bottom of chat
+      if (chatHistoryRef.current) {
+        setTimeout(() => {
+          chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+        }, 100);
+      }
     };
 
     const handleNewChat = () => {
@@ -1136,7 +1139,7 @@ function App() {
             </div>
             <div className="status-item">
               <span className="status-count">#{metrics.rank}</span>
-              <span className="status-label">Overall Rank</span>
+              <span className="status-label">Rank</span>
             </div>
           </div>
         </div>
@@ -1164,6 +1167,9 @@ function App() {
       return 7; // Show up to 7 pages on desktop
     }
   };
+
+  // Add new state for orchestrator mode
+  const [isOrchestratorMode, setIsOrchestratorMode] = useState(true);
 
   return (
     <div className="veyr-container" data-mode={mode}>
@@ -1196,12 +1202,14 @@ function App() {
               <span className="header-subtitle">- The Intralox Chatbot Aggregator</span>
             </div>
             <div className="mode-toggle">
-              <button
-                className={mode === 'search' ? 'active' : ''}
-                onClick={() => setMode('search')}
-              >
-                <FaSearch size={24} />
-              </button>
+              {(!mode === 'chat' || !isOrchestratorMode) && (
+                <button
+                  className={mode === 'search' ? 'active' : ''}
+                  onClick={() => setMode('search')}
+                >
+                  <FaSearch size={24} />
+                </button>
+              )}
               <button
                 className={mode === 'chat' ? 'active' : ''}
                 onClick={() => {
@@ -1211,14 +1219,6 @@ function App() {
               >
                 <FaComment size={24} />
               </button>
-              {pinnedBots.length === 1 && pinnedBots[0].links && pinnedBots[0].links[0] && (
-                <button
-                  onClick={() => window.open(pinnedBots[0].links[0].url, '_blank')}
-                  title="Open SharePoint Site"
-                >
-                  <FaArrowUp size={24} />
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -1249,17 +1249,18 @@ function App() {
                     placeholder={
                       mode === 'search'
                         ? 'Search for chatbots...'
-                        : pinnedBots.length > 0
-                          ? pinnedBots.length <= 3
-                            ? `Chat with ${pinnedBots.map(bot => bot.name).join(', ')}`
-                            : (() => {
-                                // Get 3 random bots from the pinned bots
-                                const randomBots = [...pinnedBots]
-                                  .sort(() => 0.5 - Math.random())
-                                  .slice(0, 3);
-                                return `Chat with ${randomBots.map(bot => bot.name).join(', ')} & ${pinnedBots.length - 3} other chatbots`;
-                              })()
-                          : 'Please pick your chatbot(s) on the search page'
+                        : isOrchestratorMode
+                          ? 'Start chatting and let the orchestrator decide which chatbots to use for you...'
+                          : pinnedBots.length > 0
+                            ? pinnedBots.length <= 3
+                              ? `Chat with ${pinnedBots.map(bot => bot.name).join(', ')}`
+                              : (() => {
+                                  const randomBots = [...pinnedBots]
+                                    .sort(() => 0.5 - Math.random())
+                                    .slice(0, 3);
+                                  return `Chat with ${randomBots.map(bot => bot.name).join(', ')} & ${pinnedBots.length - 3} other chatbots`;
+                                })()
+                            : 'Please pick your chatbot(s) on the search page'
                     }
                     value={searchText}
                     onChange={handleSearchTextChange}
@@ -1270,6 +1271,24 @@ function App() {
                       }
                     }}
                 />
+                {mode === 'chat' && !isOrchestratorMode && (
+                    <button 
+                      className={`chat-submit-button ${pinnedBots.length === 0 ? 'disabled' : ''}`}
+                      onClick={handleChatSubmit}
+                      disabled={pinnedBots.length === 0}
+                    >
+                      <FaArrowUp />
+                    </button>
+                )}
+                {mode === 'chat' && isOrchestratorMode && (
+                    <button 
+                      className="chat-submit-button"
+                      onClick={handleChatSubmit}
+                    >
+                      <FaArrowUp />
+                    </button>
+                )}
+
                 {searchText && (
                     <button 
                         className="clear-text-button"
@@ -1297,16 +1316,6 @@ function App() {
                     ))}
                     </div>
                 )}
-
-                {mode === 'chat' && (
-                    <button 
-                      className={`chat-submit-button ${pinnedBots.length === 0 ? 'disabled' : ''}`}
-                      onClick={handleChatSubmit}
-                      disabled={pinnedBots.length === 0}
-                    >
-                      <FaArrowUp />
-                    </button>
-                )}
             </div>
         </div>
 
@@ -1314,6 +1323,18 @@ function App() {
           {mode === 'chat' ? (
             // Chat Mode Content
             <div className="chat-content">
+              <div className="chat-mode-toggle">
+                <span className={!isOrchestratorMode ? 'active' : ''}>Manual</span>
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={isOrchestratorMode}
+                    onChange={() => setIsOrchestratorMode(!isOrchestratorMode)}
+                  />
+                  <span className="slider round"></span>
+                </label>
+                <span className={isOrchestratorMode ? 'active' : ''}>Orchestrator</span>
+              </div>
               <div className="chat-history" ref={chatHistoryRef}>
                 {chatHistory.map((message, index) => (
                   <div key={index} className={`message ${message.sender}`}>
@@ -1445,8 +1466,24 @@ function App() {
                       <p>{pinnedBots.length}</p>
                     </div>
                     <div className="stat-item">
+                      <FaComment className="status-icon" />
+                      <h4>Total Chats</h4>
+                      <p>{pinnedBots.reduce((sum, bot) => {
+                        const metrics = botMetrics[bot.id];
+                        return sum + metrics.chats;
+                      }, 0).toLocaleString()}</p>
+                    </div>
+                    <div className="stat-item">
+                      <FaSearch className="status-icon" />
+                      <h4>Total Queries</h4>
+                      <p>{pinnedBots.reduce((sum, bot) => {
+                        const metrics = botMetrics[bot.id];
+                        return sum + metrics.queries;
+                      }, 0).toLocaleString()}</p>
+                    </div>
+                    <div className="stat-item">
                       <FaCheckCircle className="status-icon success" />
-                      <h4>Processed</h4>
+                      <h4>Files Processed</h4>
                       <p>{pinnedBots.reduce((sum, bot) => {
                         const stats = getStatsForBot(bot.id);
                         return sum + stats.success;
@@ -1454,7 +1491,7 @@ function App() {
                     </div>
                     <div className="stat-item">
                       <FaCheckCircle className="status-icon pending" />
-                      <h4>Processing</h4>
+                      <h4>Files Processing</h4>
                       <p>{pinnedBots.reduce((sum, bot) => {
                         const stats = getStatsForBot(bot.id);
                         return sum + stats.pending;
@@ -1462,7 +1499,7 @@ function App() {
                     </div>
                     <div className="stat-item">
                       <FaTimesCircle className="status-icon failed" />
-                      <h4>Failed</h4>
+                      <h4>Files Failed</h4>
                       <p>{pinnedBots.reduce((sum, bot) => {
                         const stats = getStatsForBot(bot.id);
                         return sum + stats.failed;
