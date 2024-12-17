@@ -38,11 +38,13 @@
   cursor: pointer;
   border-radius: 5px;
   font-size: 24px;
+  color: #000;
 }
 
 .mode-toggle button.active {
   background-color: #ddd;
   font-weight: bold;
+  color: #000;
 }
 
 .search-chat-area {
@@ -119,8 +121,8 @@
   color: #fff;
   position: absolute;
   right: 5px;
-  bottom: 5px;
-  z-index: 2;
+  bottom: 8px;
+  z-index: 1;
 }
 
 .chat-submit-button svg {
@@ -143,6 +145,15 @@
   gap: 10px;
   margin-bottom: 20px;
   align-items: center; /* Align items vertically */
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  /* Add gradient fade on the right edge */
+  mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
 }
 
 .controls button,
@@ -153,6 +164,7 @@
   cursor: pointer;
   border-radius: 5px;
   font-size: 16px;
+  color: #000;
 }
 
 .upload-button {
@@ -236,8 +248,8 @@
     border: none;
     padding: 5px 10px;
     cursor: pointer;
-    color: #007bff;
-    text-decoration: underline;
+    color: #000;
+    text-decoration: none;
     font-size: 16px;
   }
   
@@ -266,12 +278,35 @@
 /* Chat History */
 .chat-history {
   overflow-y: auto;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+}
+
+.chat-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.clear-chat {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #dc3545;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.clear-chat:hover {
+  background-color: #fff5f5;
+  border-color: #dc3545;
 }
 
 .message {
@@ -300,7 +335,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 20px;
-  overflow-y: auto;
   width: 100%;
   margin: 0 auto;
 }
@@ -417,7 +451,7 @@
 }
 
 .link a {
-  color: #007bff;
+  color: #000;
   text-decoration: none;
 }
 
@@ -531,7 +565,7 @@
     padding: 5px 10px;
     margin-top: 5px;
     cursor: pointer;
-    color: #007bff;
+    color: #000;
     text-decoration: underline;
     font-size: 14px;
     float: right; /* Align to the right */
@@ -583,9 +617,9 @@
 
 .clear-text-button {
   position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 8px;
+  top: 8px;
+  transform: none;
   background: none;
   border: none;
   padding: 5px;
@@ -597,6 +631,8 @@
   border-radius: 50%;
   transition: all 0.2s ease;
   z-index: 1;
+  width: 24px;
+  height: 24px;
 }
 
 .clear-text-button:hover {
@@ -606,79 +642,42 @@
 
 /* Adjust positioning when in chat mode */
 .mode-toggle button.active[class*="chat"] ~ .search-chat-area .clear-text-button {
-  right: 45px;
+  right: 40px;
 }
 
 /* Mobile-first styles */
 @media screen and (max-width: 768px) {
-  .bot-list {
-    grid-template-columns: 1fr;  /* Single column on mobile */
-    gap: 10px;
-    max-width: 100%;
-  }
-  
-  .controls {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 10px;  /* Space for scrollbar */
-    -webkit-overflow-scrolling: touch;  /* Smooth scrolling on iOS */
-  }
-  
-  .controls button {
-    white-space: nowrap;
-    flex-shrink: 0;
-    padding: 8px 12px;
-    font-size: 14px;
-  }
-  
-  .controls button svg {
-    margin-right: 4px;
-  }
-  
-  .header {
-    flex-wrap: wrap;
-  }
-  
-  .header h1 {
-    font-size: 1.5em;
-  }
-  
-  .header-subtitle {
-    font-size: 0.9em;
-  }
-  
-  .mode-toggle {
-    margin-left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  
-  .bot-card {
-    margin: 5px 0;
-  }
-  
+  /* Hide unnecessary elements on mobile */
+  .saved-searches-section,
   .pagination {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 5px;
+    display: none;
   }
   
-  .pagination span {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 10px;
+  /* Fix controls visibility when help is shown */
+  .controls {
+    position: sticky;
+    top: 0;
+    background: #f5f5f5;
+    z-index: 2;
+    padding: 8px 0;
+    overflow-y: hidden;
+    touch-action: pan-x;
   }
   
-  .csv-format-table {
-    font-size: 12px;
+  .bot-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
-  .csv-format-table th,
-  .csv-format-table td {
-    padding: 8px;
+  /* Ensure container scrolls properly without pagination */
+  .veyr-container {
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 20px;
   }
 }
 
@@ -719,8 +718,8 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
-  max-width: 90%;
+  width: 90%;
+  max-width: 400px;
 }
 
 .tag-input-content h4 {
@@ -728,11 +727,13 @@
 }
 
 .tag-input-content input {
-  width: 100%;
+  width: calc(100% - 32px);
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-bottom: 10px;
+  margin-left: 8px;
+  margin-right: 8px;
 }
 
 .tag-suggestions {
@@ -778,18 +779,20 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 30px;
-  height: 21px;
+  width: 16px;
+  height: 12px;
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
   margin-right: 15px;
+  z-index: 1000;
+  display: none;  /* Hide when menu is open */
 }
 
 .hamburger-line {
   width: 100%;
-  height: 3px;
+  height: 2px;
   background-color: #000;
   transition: all 0.3s ease;
 }
@@ -847,4 +850,449 @@
 
 .menu-content button:hover {
   background-color: #f5f5f5;
+}
+
+/* Mobile-first styles */
+@media screen and (max-width: 768px) {
+  /* Reduce vertical spacing */
+  .controls {
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+  }
+  
+  /* Make all icons black by default */
+  .controls button svg,
+  .pin-button svg,
+  .edit-button svg,
+  .delete-button svg,
+  .add-tag-button svg,
+  .add-link-button svg,
+  .upload-links-button svg {
+    color: #000;
+    fill: #000;
+  }
+  
+  /* Reduce space between saved searches and bot list */
+  .saved-searches-section {
+    margin-bottom: 12px;
+  }
+  
+  /* Ensure pin button works properly */
+  .pin-button {
+    z-index: 1;
+    padding: 8px;
+  }
+  
+  .pin-button .pinned {
+    color: #000;
+    fill: #000;
+    transform: rotate(45deg);
+  }
+}
+
+/* Fix link colors */
+.link a {
+  color: #000;
+  text-decoration: none;
+}
+
+/* Mobile styles */
+@media screen and (max-width: 768px) {
+  /* Fix controls visibility when help is shown */
+  .controls {
+    position: sticky;
+    top: 0;
+    background: #f5f5f5;
+    z-index: 2;
+    padding-top: 8px;
+  }
+  
+  /* Allow up to 10 cards per page on mobile */
+  .bot-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding-bottom: 60px; /* Space for fixed pagination */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Add context menu for tags and links */
+  .tag, .link {
+    position: relative;
+    touch-action: none;
+  }
+  
+  .tag:active, .link:active {
+    opacity: 0.7;
+  }
+  
+  .context-menu {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: none;
+  }
+  
+  .context-menu.active {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .context-menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    color: #dc3545;  /* Red color for delete action */
+    white-space: nowrap;
+  }
+  
+  .context-menu button:hover {
+    background-color: #f5f5f5;
+  }
+  
+  /* Specific styles for different menu items */
+  .context-menu button[data-action="delete-bot"] {
+    border-bottom: 1px solid #eee;
+  }
+  
+  .context-menu button[data-action="delete-tag"] {
+    color: #dc3545;
+  }
+  
+  .context-menu button[data-action="delete-link"] {
+    color: #dc3545;
+  }
+}
+
+/* Chat History Mobile Styles */
+@media screen and (max-width: 768px) {
+  .chat-history {
+    overflow-y: visible;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    min-height: 50vh;
+    height: auto;
+  }
+
+  /* Fix horizontal scrolling controls */
+  .controls {
+    position: sticky;
+    top: 0;
+    background: #f5f5f5;
+    z-index: 2;
+    padding: 8px 0;
+    overflow-y: hidden;  /* Prevent vertical scrolling */
+    touch-action: pan-x;  /* Only allow horizontal touch movement */
+  }
+
+  /* Limit cards per page on mobile */
+  .bot-list {
+    display: grid;
+    grid-template-rows: repeat(3, auto);
+    overflow: hidden;
+  }
+}
+
+/* Menu Close Button */
+.menu-close {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  font-size: 16px;
+}
+
+.menu-close .close-icon {
+  margin-right: 10px;
+  background: #f0f0f0;
+  border-radius: 50%;
+  padding: 5px;
+}
+
+.context-menu {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  padding: 0;
+  min-width: 120px;
+  position: fixed;
+  z-index: 1100;
+}
+
+.context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #dc3545;  /* Red color for delete action */
+}
+
+.context-menu button:hover {
+  background-color: #fff5f5;  /* Light red background on hover */
+}
+
+.context-menu button svg {
+  font-size: 14px;
+  color: inherit;
+}
+
+/* Prevent text selection during long press */
+.bot-card, .tag, .link {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+.bot-card:active,
+.tag:active,
+.link:active {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+/* Add subtle bounce animation to indicate scrollability */
+@keyframes scrollHint {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-20px); }
+  75% { transform: translateX(0); }
+  100% { transform: translateX(0); }
+}
+
+/* Show animation only when controls overflow and pins exist */
+.controls.has-overflow {
+  animation: scrollHint 1.5s ease-in-out;
+  animation-delay: 0.5s;
+  animation-iteration-count: 3;
+}
+
+/* Ensure container allows scrolling */
+.veyr-container {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile-first styles */
+@media screen and (max-width: 768px) {
+  /* Hide unnecessary elements on mobile */
+  .saved-searches-section,
+  .pagination {
+    display: none;
+  }
+
+  /* Fix controls visibility when help is shown */
+  .controls {
+    position: sticky;
+    top: 0;
+    background: #f5f5f5;
+    z-index: 2;
+    padding: 8px 0;
+    overflow-y: hidden;
+    touch-action: pan-x;
+  }
+
+  .bot-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding-bottom: 60px; /* Add space for pagination in search mode */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Adjust padding when in chat mode */
+  .mode-toggle button.active[class*="chat"] ~ .bot-list {
+    padding-bottom: 0;
+  }
+}
+
+/* Hide elements in chat mode for both mobile and desktop */
+.veyr-container[data-mode="chat"] .controls,
+.veyr-container[data-mode="chat"] .saved-searches-section,
+.veyr-container[data-mode="chat"] .pagination,
+.veyr-container[data-mode="chat"] .bot-list {
+  display: none;
+}
+
+.add-sharepoint-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #000;
+  font-size: 14px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.links-table {
+  display: grid;
+  gap: 8px;
+}
+
+.link-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.link-description {
+  flex: 1;
+  font-size: 14px;
+}
+
+.sharepoint-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.sharepoint-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 500px;
+}
+
+.sharepoint-content input {
+  width: calc(100% - 40px);
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 10px 20px;
+  font-size: 14px;
+}
+
+.link-status-dashboard {
+  display: flex;
+  justify-content: space-around;
+  padding: 15px;
+  background: #f8f8f8;
+  border-radius: 8px;
+  margin-top: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;  /* Allow flex items to shrink below content size */
+  text-align: center;
+  flex-direction: column;  /* Stack items vertically */
+}
+
+.status-count {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 4px 0;
+}
+
+.status-label {
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.status-icon {
+  font-size: 16px;
+}
+
+/* Remove blue color from expand/collapse arrows */
+.expand-button {
+  background: none;
+  border: none;
+  padding: 5px 10px;
+  margin-top: 5px;
+  cursor: pointer;
+  color: #000;
+  text-decoration: underline;
+  font-size: 14px;
+  float: right;
+}
+
+/* Update SharePoint link display */
+.sharepoint-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 500px;
+}
+
+.sharepoint-content input {
+  width: calc(100% - 40px);
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 10px 20px;
+  font-size: 14px;
+}
+
+/* Add display for saved SharePoint link */
+.sharepoint-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: #f8f8f8;
+  border-radius: 4px;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #000;
+}
+
+.current-url {
+  font-size: 12px;
+  color: #666;
+  margin-left: 8px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

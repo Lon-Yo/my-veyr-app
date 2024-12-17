@@ -15,6 +15,9 @@ import {
   FaArrowUp,
   FaBars,
   FaTimes,
+  FaChevronDown,
+  FaChevronUp,
+  FaLink,
 } from 'react-icons/fa';
 
 function App() {
@@ -261,17 +264,19 @@ function App() {
   };
 
   const calculateBotsPerPage = () => {
-    // Get the container width
-    const container = document.querySelector('.bot-list');
-    if (!container) return 9; // Default to 9 (3 rows × 3 columns) if container not found
-
-    // Calculate how many columns can fit (based on the 350px min-width from CSS)
-    const containerWidth = container.clientWidth;
-    const cardMinWidth = 350; // This should match the minmax value in CSS
-    const columns = Math.floor(containerWidth / cardMinWidth);
-
-    // Return columns × 3 rows
-    return columns * 3;
+    // Check if we're on mobile
+    if (window.innerWidth <= 768) {
+      return 10; // Show 10 cards per page on mobile
+    } else {
+      // Desktop layout calculation
+      const container = document.querySelector('.bot-list');
+      if (!container) return 9;
+      
+      const containerWidth = container.clientWidth;
+      const cardMinWidth = 350;
+      const columns = Math.floor(containerWidth / cardMinWidth);
+      return columns * 3;
+    }
   };
 
   const [botsPerPage, setBotsPerPage] = useState(9); // Start with default 9
@@ -321,6 +326,19 @@ function App() {
     }, {});
   });
 
+  const [contextMenu, setContextMenu] = useState({ 
+    show: false, 
+    x: 0, 
+    y: 0, 
+    type: null, 
+    itemId: null, 
+    index: null 
+  });
+
+  const [longPressTimer, setLongPressTimer] = useState(null);
+
+  const controlsRef = useRef(null);
+
   useEffect(() => {
     const initialBots = getInitialBots();
     setAllBots(initialBots);
@@ -362,15 +380,24 @@ function App() {
 
   useEffect(() => {
     if (showPinnedOnly) {
-      setFilteredBots(pinnedBots);
+      // Only show pinned bots if there are any, otherwise show all bots
+      if (pinnedBots.length > 0) {
+        setFilteredBots(pinnedBots);
+      } else {
+        // If no pins, disable pinned view and show all bots
+        setShowPinnedOnly(false);
+        setFilteredBots(allBots);
+      }
     } else {
-      // Only show all bots if in search mode
-      if (mode === 'search') {
+      // When showing all, either show search results or all bots
+      if (searchText.trim()) {
         handleSearch();
+      } else {
+        setFilteredBots(allBots);
       }
     }
     setCurrentPage(1);
-  }, [showPinnedOnly]);
+  }, [showPinnedOnly, allBots, pinnedBots, searchText]);
 
   // Update filtered bots when pins change
   useEffect(() => {
@@ -495,11 +522,16 @@ function App() {
 
   const togglePin = (botId) => {
     const bot = allBots.find((b) => b.id === botId);
+    if (!bot) return;
+    
     if (pinnedBots.find((b) => b.id === botId)) {
       setPinnedBots(pinnedBots.filter((b) => b.id !== botId));
     } else {
       setPinnedBots([...pinnedBots, bot]);
     }
+    
+    // Force re-render of the pin button
+    setAllBots(prev => [...prev]);
   };
 
   const handleEdit = (botId, field, index = -1) => {
@@ -849,24 +881,54 @@ function App() {
   const indexOfFirstBot = indexOfLastBot - botsPerPage;
   const currentBots = filteredBots.slice(indexOfFirstBot, indexOfLastBot);
 
-  const handleContextMenu = (e, type, botId, index) => {
+  const handleContextMenu = (e, type, itemId, index = null) => {
     e.preventDefault();
-    const options = ['Edit', 'Delete'];
-    
-    if ('ontouchstart' in window) {
-      // For mobile
-      const choice = window.prompt(`Choose action (1: Edit, 2: Delete):`, '1');
-      if (choice === '1') handleEdit(botId, type, index);
-      else if (choice === '2') handleDelete(botId, type, index);
-    } else {
-      // For desktop
-      if (window.confirm(`Edit or delete? OK for edit, Cancel for delete`)) {
-        handleEdit(botId, type, index);
-      } else {
-        handleDelete(botId, type, index);
-      }
+    const rect = e.target.getBoundingClientRect();
+    setContextMenu({
+      show: true,
+      x: e.clientX || rect.left,
+      y: e.clientY || rect.bottom,
+      type,
+      itemId,
+      index
+    });
+  };
+
+  const handleLongPress = (e, type, itemId, index = null) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.target.getBoundingClientRect();
+    setContextMenu({
+      show: true,
+      x: rect.left,
+      y: rect.bottom + window.scrollY,  // Add scroll position
+      type,
+      itemId,
+      index
+    });
+  };
+
+  const handleTouchStart = (e, type, itemId, index = null) => {
+    e.preventDefault();
+    const timer = setTimeout(() => {
+      handleLongPress(e, type, itemId, index);
+    }, 500);
+    setLongPressTimer(timer);
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
     }
   };
+
+  // Add click handler to close context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setContextMenu({ show: false });
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const handleSystemPromptEdit = (botId, newPrompt) => {
     const updatedBots = allBots.map(bot => 
@@ -880,8 +942,117 @@ function App() {
     );
   };
 
+  // Check if controls overflow and need scrolling
+  const checkControlsOverflow = () => {
+    if (controlsRef.current) {
+      const hasOverflow = controlsRef.current.scrollWidth > controlsRef.current.clientWidth;
+      controlsRef.current.classList.toggle('has-overflow', hasOverflow && pinnedBots.length > 0);
+    }
+  };
+
+  // Auto-scroll to show Clear All Pins when pins change
+  useEffect(() => {
+    if (controlsRef.current && pinnedBots.length > 0) {
+      controlsRef.current.scrollTo({
+        left: controlsRef.current.scrollWidth,
+        behavior: 'smooth'
+      });
+    }
+  }, [pinnedBots.length]);
+
+  // Check for overflow on mount and resize
+  useEffect(() => {
+    checkControlsOverflow();
+    window.addEventListener('resize', checkControlsOverflow);
+    return () => window.removeEventListener('resize', checkControlsOverflow);
+  }, [pinnedBots.length]);
+
+  const handleAddSharePointLink = (botId) => {
+    const dialog = document.createElement('div');
+    dialog.className = 'sharepoint-dialog';
+    dialog.innerHTML = `
+      <div class="sharepoint-content">
+        <h4>SharePoint Site</h4>
+        <input 
+          type="text" 
+          id="sharepoint-input" 
+          placeholder="https://www.sharepoint.com/example123"
+          value="${allBots.find(bot => bot.id === botId)?.links[0]?.url || ''}"
+        />
+        <div class="dialog-buttons">
+          <button class="cancel-button">Cancel</button>
+          <button class="add-button">Add</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(dialog);
+    
+    const input = dialog.querySelector('#sharepoint-input');
+    input.focus();
+    
+    const handleAdd = () => {
+      const url = input.value.trim();
+      if (url) {
+        const newLink = {
+          url,
+          status: 'pending',
+          description: url.split('/').pop() || 'SharePoint Site'
+        };
+        const updatedBots = allBots.map((bot) =>
+          bot.id === botId ? { ...bot, links: [newLink] } : bot
+        );
+        setAllBots(updatedBots);
+        setFilteredBots(prevFiltered => 
+          prevFiltered.map(bot => 
+            bot.id === botId ? { ...bot, links: [newLink] } : bot
+          )
+        );
+      }
+      document.body.removeChild(dialog);
+    };
+    
+    dialog.querySelector('.add-button').addEventListener('click', handleAdd);
+    dialog.querySelector('.cancel-button').addEventListener('click', () => {
+      document.body.removeChild(dialog);
+    });
+    
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleAdd();
+      if (e.key === 'Escape') document.body.removeChild(dialog);
+    });
+  };
+
+  const LinkStatusDashboard = ({ links }) => {
+    // Static example numbers
+    const stats = {
+      success: 342,  // Example processed files
+      pending: 15,   // Example processing files
+      failed: 3      // Example failed files
+    };
+  
+    return (
+      <div className="link-status-dashboard">
+        <div className="status-item">
+          <FaCheckCircle className="status-icon success" />
+          <span className="status-count">{stats.success}</span>
+          <span className="status-label">Processed</span>
+        </div>
+        <div className="status-item">
+          <FaCheckCircle className="status-icon pending" />
+          <span className="status-count">{stats.pending}</span>
+          <span className="status-label">Processing</span>
+        </div>
+        <div className="status-item">
+          <FaTimesCircle className="status-icon failed" />
+          <span className="status-count">{stats.failed}</span>
+          <span className="status-label">Failed</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="veyr-container">
+    <div className="veyr-container" data-mode={mode}>
         <input 
           type="file" 
           id="file-upload" 
@@ -893,6 +1064,7 @@ function App() {
             <button 
                 className="hamburger-menu" 
                 onClick={() => setShowMenu(!showMenu)}
+                style={{ display: showMenu ? 'none' : 'flex' }}
             >
                 <span className="hamburger-line"></span>
                 <span className="hamburger-line"></span>
@@ -926,10 +1098,13 @@ function App() {
                 onClick={() => setShowMenu(false)}
             ></div>
             <div className={`menu-content ${showMenu ? 'active' : ''}`}>
-                    <button onClick={() => {/* handle profile */}}>Profile</button>
-                    <button onClick={() => {/* handle settings */}}>Settings</button>
-                    <button onClick={() => {/* handle support */}}>Support</button>
-                    <button onClick={() => {/* handle sign out */}}>Sign Out</button>
+                <div className="menu-close" onClick={() => setShowMenu(false)}>
+                    <FaTimes className="close-icon" /> Close Menu
+                </div>
+                <button onClick={() => {/* handle profile */}}>Profile</button>
+                <button onClick={() => {/* handle settings */}}>Settings</button>
+                <button onClick={() => {/* handle support */}}>Support</button>
+                <button onClick={() => {/* handle sign out */}}>Sign Out</button>
             </div>
             </>
         )}
@@ -940,17 +1115,17 @@ function App() {
                     ref={searchInputRef}
                     className="search-chat-input"
                     placeholder={
-                    mode === 'search'
+                      mode === 'search'
                         ? 'Search for chatbots...'
-                        : 'Enter your message...'
+                        : `Chat with ${pinnedBots.length} selected chatbot${pinnedBots.length !== 1 ? 's' : ''}`
                     }
                     value={searchText}
                     onChange={handleSearchTextChange}
                     onKeyDown={(e) => {
-                    if (mode === 'chat' && e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault(); // Prevent newline
+                      if (mode === 'chat' && e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
                         handleChatSubmit();
-                    }
+                      }
                     }}
                 />
                 {searchText && (
@@ -990,190 +1165,102 @@ function App() {
         </div>
 
         {mode === 'chat' && (
+          <>
             <div className="chat-history" ref={chatHistoryRef}>
               {chatHistory.map((message, index) => (
                 <div key={index} className={`message ${message.sender}`}>
                   {message.text}
                 </div>
               ))}
-              {chatHistory.length > 0 && (
+            </div>
+            {chatHistory.length > 0 && (
+              <div className="chat-controls">
                 <button className="clear-chat" onClick={() => setChatHistory([])}>
                   Clear Chat
                 </button>
-              )}
-            </div>
+              </div>
+            )}
+          </>
         )}
 
-      <div className="controls">
-        <button onClick={() => setShowHelp(!showHelp)}>
-          <FaQuestionCircle /> Help
-        </button>
-        <button onClick={() => setShowStats(!showStats)}>
-          <FaPlus /> Statistics
-        </button>
-        <button onClick={addBot}>
-          <FaPlus /> Add Bot
-        </button>
-        <button onClick={() => setShowPinnedOnly(!showPinnedOnly)}>
-          {showPinnedOnly ? <FaSearch /> : <FaThumbtack />}
-          {showPinnedOnly ? 'Show All' : 'Show Pinned'}
-        </button>
-        {pinnedBots.length > 0 && (
-          <button onClick={() => {
-            setPinnedBots([]);
-            setMode('search');
-            setShowPinnedOnly(false);
-            handleSearch();
-          }}>
-            <FaThumbtack /> Clear All Pins
+      {mode === 'search' && (
+        <div className="controls" ref={controlsRef}>
+          <button onClick={() => setShowHelp(!showHelp)}>
+            <FaQuestionCircle /> Help
           </button>
-        )}
-      </div>
-
-      {showHelp && (
-        <div className="help-section">
-          <h3>Help</h3>
-          <p>
-            <b>Search Mode:</b> Enter keywords to search for chatbots. Use "AND" and "OR" for
-            complex queries.
-          </p>
-          <p>
-            <b>Chat Mode:</b> Select chatbots to chat with. Type your message in the text area
-            and click the send button.
-          </p>
-          <p>
-            <b>Pinning:</b> Click the pin icon to pin a chatbot. Pinned chatbots are included in
-            the chat.
-          </p>
-          <p>
-            <b>Editing/Deleting:</b> Right-click (or long press) on a chatbot card, tag, or link to edit or delete it.
-          </p>
-          <p>
-            <b>Adding Items:</b> Click the "+" buttons to add new tags, links, or bots.
-          </p>
-          <p>
-            <b>Saving Searches:</b> Click "Save Search" to save your current search and pinned
-            bots for later.
-          </p>
-          <p>
-            <b>Uploading Links:</b> Click "
-            <FaFileCsv />
-            " to upload a CSV file containing links to add to a bot's knowledge.
-          </p>
-          <p>
-            <b>CSV File Format:</b>
-          </p>
-          <div className="csv-format-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Column</th>
-                  <th>Required</th>
-                  <th>Description</th>
-                  <th>URL</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>url</code></td>
-                  <td>Yes</td>
-                  <td>Employee Handbook</td>
-                  <td>https://docs.company.com/policies/employee-handbook.pdf</td>
-                </tr>
-                <tr>
-                  <td><code>url</code></td>
-                  <td>No</td>
-                  <td>Customer Service Training 101</td>
-                  <td>https://docs.company.com/customer-service/101.docx</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p>
-            <b>Important Notes:</b>
-            <ul>
-              <li>Each row must be on a new line</li>
-              <li>Do not include spaces after commas</li>
-              <li>Use quotation marks only if values contain commas</li>
-              <li>Empty lines are ignored</li>
-              <li>URLs should not contain commas</li>
-            </ul>
-          </p>
-          <p>
-            <b>Colored Circles with Check Marks:</b>
-          </p>
-          <ul>
-            <li>
-              <FaCheckCircle className="status-icon success" /> Green: File has been successfully
-              parsed and vectorized.
-            </li>
-            <li>
-              <FaCheckCircle className="status-icon pending" /> Orange: File has been uploaded but
-              is still being processed.
-            </li>
-            <li>
-              <FaTimesCircle className="status-icon failed" /> Red: File failed to be parsed or
-              vectorized.
-            </li>
-          </ul>
-        </div>
-      )}
-
-      {showStats && (
-        <div className="stats-section">
-          <h3>Statistics</h3>
-          {pinnedBots.length > 0 ? (
-            <>
-              <p>Pinned Bots: {stats.numBots}</p>
-              <p>Files in Pinned Bots: {stats.numFiles}</p>
-              <p>Tags in Pinned Bots: {stats.totalTags}</p>
-            </>
-          ) : (
-            <>
-              <p>Total Bots: {filteredBots.length}</p>
-              <p>Total Files: {stats.numFiles}</p>
-              <p>Total Tags: {stats.totalTags}</p>
-            </>
+          <button onClick={() => setShowStats(!showStats)}>
+            <FaPlus /> Statistics
+          </button>
+          <button onClick={addBot}>
+            <FaPlus /> Add Bot
+          </button>
+          <button onClick={() => {
+            const unpinnedBots = allBots.filter(bot => !pinnedBots.some(p => p.id === bot.id));
+            setPinnedBots([...pinnedBots, ...unpinnedBots]);
+          }}>
+            <FaThumbtack /> Pin All
+          </button>
+          {pinnedBots.length >= 2 && (
+            <button onClick={() => setShowPinnedOnly(!showPinnedOnly)}>
+              {showPinnedOnly ? <FaSearch /> : <FaThumbtack />}
+              {showPinnedOnly ? 'Show All' : 'Show Pinned'}
+            </button>
+          )}
+          {pinnedBots.length > 0 && (
+            <button onClick={() => {
+              setPinnedBots([]);
+              setMode('search');
+              setShowPinnedOnly(false);
+              handleSearch();
+            }}>
+              <FaThumbtack /> Clear All Pins
+            </button>
           )}
         </div>
       )}
 
+      {mode === 'search' && (
         <div className="saved-searches-section">
-            <button 
-              className="saved-searches-link" 
-              onClick={toggleSavedSearchesList}
-            >
-              {showSavedSearchesList ? 'Close Saved Searches' : 'Saved Searches'}
-            </button>
-            {showSavedSearchesList && (
-                <div className="saved-searches-list">
-                {savedSearches.map((search, index) => (
-                    <div
-                    key={index}
-                    className="saved-search"
-                    onClick={() => handleLoadSearch(search)}
-                    >
-                    {search.name}
-                    </div>
-                ))}
-                </div>
-            )}
+          <button 
+            className="saved-searches-link" 
+            onClick={toggleSavedSearchesList}
+          >
+            {showSavedSearchesList ? 'Close Saved Searches' : 'Saved Searches'}
+          </button>
+          {showSavedSearchesList && (
+              <div className="saved-searches-list">
+              {savedSearches.map((search, index) => (
+                  <div
+                  key={index}
+                  className="saved-search"
+                  onClick={() => handleLoadSearch(search)}
+                  >
+                  {search.name}
+                  </div>
+              ))}
+              </div>
+          )}
         </div>
+      )}
 
       <div className="bot-list">
-        {currentBots.map((bot) => (
+        {(window.innerWidth <= 768 ? filteredBots : currentBots).map((bot) => (
           <div
             key={bot.id}
             className="bot-card"
-            onContextMenu={(e) => {
-              e.preventDefault();
-            }}
+            onContextMenu={(e) => handleContextMenu(e, 'bot', bot.id)}
+            onTouchStart={(e) => handleTouchStart(e, 'bot', bot.id)}
+            onTouchEnd={handleTouchEnd}
+            onTouchMove={handleTouchEnd}
           >
             <div className="bot-header">
               <h3>{bot.name}</h3>
               <div className="bot-actions">
                 <button className="pin-button" onClick={() => togglePin(bot.id)}>
-                  <FaThumbtack className={pinnedBots.some((b) => b.id === bot.id) ? 'pinned' : ''} />
+                  <FaThumbtack 
+                    className={pinnedBots.some((b) => b.id === bot.id) ? 'pinned' : ''}
+                    style={{ transform: pinnedBots.some((b) => b.id === bot.id) ? 'rotate(45deg)' : 'none' }}
+                  />
                 </button>
                 <button
                   className="edit-button hidden"
@@ -1192,7 +1279,16 @@ function App() {
             <div className="bot-tags-container">
                 <div className="bot-tags">
                     {bot.tags.map((tag, index) => (
-                        <span key={index} className="tag">{tag}</span>
+                        <span 
+                          key={index} 
+                          className="tag"
+                          onContextMenu={(e) => handleContextMenu(e, 'tag', bot.id, index)}
+                          onTouchStart={(e) => handleTouchStart(e, 'tag', bot.id, index)}
+                          onTouchEnd={handleTouchEnd}
+                          onTouchMove={handleTouchEnd}
+                        >
+                          {tag}
+                        </span>
                     ))}
                     <button className="add-tag-button" onClick={() => addTag(bot.id)}>
                         <FaPlus />
@@ -1200,50 +1296,19 @@ function App() {
                 </div>
             </div>
             <button className="expand-button" onClick={() => toggleExpand(bot.id)}>
-                {expandedBots[bot.id] ? 'Less' : 'More'}
+                {expandedBots[bot.id] ? <FaChevronUp /> : <FaChevronDown />}
             </button>
 
             {expandedBots[bot.id] && (
                 <div className="bot-expanded-content">
                 <div className="bot-links">
-                    {bot.links.map((link, index) => (
-                    <div
-                        key={index}
-                        className="link"
-                        onContextMenu={(e) => {
-                        e.preventDefault();
-                        if (window.confirm(`Edit or delete link "${link.url}"?`)) {
-                            handleEdit(bot.id, 'links', index);
-                        } else {
-                            handleDelete(bot.id, 'links', index);
-                        }
-                        }}
-                    >
-                        <a href={link.url} target="_blank" rel="noopener noreferrer">
-                        {link.url}
-                        </a>
-                        {getLinkStatusIcon(link.status)}
-                        <span className="version">v{link.version}</span>
-                        <span className="last-updated">({link.lastUpdated})</span>
-                    </div>
-                    ))}
-                    <div className="link-actions">
-                        <button className="add-link-button" onClick={() => addLink(bot.id)}>
-                            <FaPlus />
-                        </button>
-                        <button 
-                            className="upload-links-button" 
-                            onClick={() => {
-                              const fileInput = document.getElementById('file-upload');
-                              if (fileInput) {
-                                fileInput.dataset.botId = bot.id.toString(); // Store the bot ID
-                                fileInput.click();
-                              }
-                            }}
-                        >
-                            <FaFileCsv />
-                        </button>
-                    </div>
+                    <button className="add-sharepoint-link" onClick={() => handleAddSharePointLink(bot.id)}>
+                      <FaLink /> SharePoint Site
+                      {bot.links[0] && (
+                        <span className="current-url">({bot.links[0].url})</span>
+                      )}
+                    </button>
+                    <LinkStatusDashboard links={bot.links} />
                 </div>
                 <div className="bot-system-prompt">
                     <div className="system-prompt-header">
@@ -1271,21 +1336,73 @@ function App() {
         ))}
       </div>
 
-      {/* Pagination */}
-      <div className="pagination">
-        <span>
-            Showing {indexOfFirstBot + 1} to {Math.min(indexOfLastBot, filteredBots.length)} of {filteredBots.length}
-        </span>
-        {Array.from({ length: Math.ceil(filteredBots.length / botsPerPage) }, (_, i) => (
-            <button
-            key={i + 1}
-            className={currentPage === i + 1 ? 'active' : ''}
-            onClick={() => handlePageChange(i + 1)}
-            >
-            {i + 1}
-            </button>
-        ))}
+      {mode === 'search' && window.innerWidth > 768 && (
+        <div className="pagination">
+          <span>
+            {`${indexOfFirstBot + 1}-${Math.min(indexOfLastBot, filteredBots.length)}/${filteredBots.length}`}
+          </span>
+          <div className="pagination-buttons">
+            {Array.from({ length: Math.ceil(filteredBots.length / botsPerPage) }, (_, i) => {
+              const shouldShow = Math.abs(currentPage - (i + 1)) <= 1;
+              return shouldShow ? (
+                <button
+                  key={i + 1}
+                  className={currentPage === i + 1 ? 'active' : ''}
+                  onClick={() => handlePageChange(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              ) : null;
+            })}
+          </div>
         </div>
+      )}
+
+      {contextMenu.show && (
+        <div 
+          className="context-menu"
+          style={{ 
+            position: 'fixed',
+            top: contextMenu.y,
+            left: contextMenu.x,
+            zIndex: 1000
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {contextMenu.type === 'bot' && (
+            <>
+              <button onClick={() => {
+                handleDelete(contextMenu.itemId, 'bot');
+                setContextMenu({ show: false });
+              }}>
+                <FaTrash /> Delete Bot
+              </button>
+            </>
+          )}
+          
+          {contextMenu.type === 'tag' && (
+            <>
+              <button onClick={() => {
+                handleDelete(contextMenu.itemId, 'tag', contextMenu.index);
+                setContextMenu({ show: false });
+              }}>
+                <FaTrash /> Delete Tag
+              </button>
+            </>
+          )}
+          
+          {contextMenu.type === 'link' && (
+            <>
+              <button onClick={() => {
+                handleDelete(contextMenu.itemId, 'link', contextMenu.index);
+                setContextMenu({ show: false });
+              }}>
+                <FaTrash /> Delete Link
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
