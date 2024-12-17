@@ -404,9 +404,11 @@ function App() {
   useEffect(() => {
     if (mode === 'chat' || showPinnedOnly) {
       setFilteredBots(pinnedBots);
-      setCurrentPage(1);
+      if (showPinnedOnly && pinnedBots.length <= (currentPage - 1) * botsPerPage) {
+        setCurrentPage(1);
+      }
     }
-  }, [pinnedBots, mode]);
+  }, [pinnedBots, mode, showPinnedOnly]);
 
   const getInitialSavedSearches = () => {
     return [
@@ -426,12 +428,8 @@ function App() {
   };
 
   const handleSearch = () => {
-    // Don't perform search in chat mode
-    if (mode === 'chat') {
-      return;
-    }
+    if (mode === 'chat') return;
 
-    // Only filter if there's search text
     if (searchText.trim()) {
       let filtered = allBots.filter(bot => {
         const botName = bot.name.toLowerCase();
@@ -462,9 +460,10 @@ function App() {
       }
 
       setFilteredBots(filtered);
-      setCurrentPage(1);
+      if (filtered.length <= (currentPage - 1) * botsPerPage) {
+        setCurrentPage(1);
+      }
     } else {
-      // If no search text, show all bots or pinned bots based on showPinnedOnly
       setFilteredBots(showPinnedOnly ? pinnedBots : allBots);
     }
   };
@@ -507,14 +506,13 @@ function App() {
     const bot = allBots.find((b) => b.id === botId);
     if (!bot) return;
     
-    if (pinnedBots.find((b) => b.id === botId)) {
-      setPinnedBots(pinnedBots.filter((b) => b.id !== botId));
-    } else {
-      setPinnedBots([...pinnedBots, bot]);
-    }
-    
-    // Force re-render of the pin button
-    setAllBots(prev => [...prev]);
+    setPinnedBots(prevPinnedBots => {
+      if (prevPinnedBots.find((b) => b.id === botId)) {
+        return prevPinnedBots.filter((b) => b.id !== botId);
+      } else {
+        return [...prevPinnedBots, bot];
+      }
+    });
   };
 
   const handleEdit = (botId, field, index = -1) => {
@@ -1194,297 +1192,312 @@ function App() {
             </div>
         </div>
 
-        {mode === 'search' && (
-          <>
-            <div className="controls" ref={controlsRef}>
-              <button onClick={() => setShowHelp(!showHelp)}>
-                <FaQuestionCircle /> Help
-              </button>
-              <button onClick={() => setShowStats(!showStats)}>
-                <FaPlus /> Statistics
-              </button>
-              <button onClick={addBot}>
-                <FaPlus /> Add Bot
-              </button>
-              {allBots.length > pinnedBots.length && (
-                <button onClick={() => {
-                  const unpinnedBots = allBots.filter(bot => !pinnedBots.some(p => p.id === bot.id));
-                  setPinnedBots([...pinnedBots, ...unpinnedBots]);
-                }}>
-                  <FaThumbtack /> Pin All
-                </button>
-              )}
-              {pinnedBots.length >= 2 && pinnedBots.length < allBots.length && (
-                <button onClick={() => setShowPinnedOnly(!showPinnedOnly)}>
-                  {showPinnedOnly ? <FaSearch /> : <FaThumbtack />}
-                  {showPinnedOnly ? 'Show All' : 'Show Pinned'}
-                </button>
-              )}
-              {pinnedBots.length > 0 && (
-                <button onClick={() => {
-                  setPinnedBots([]);
-                  setMode('search');
-                  setShowPinnedOnly(false);
-                  handleSearch();
-                }}>
-                  <FaThumbtack /> Clear All Pins
-                </button>
-              )}
-            </div>
-
-            <div className="saved-searches-section">
-              <button 
-                className="saved-searches-link" 
-                onClick={toggleSavedSearchesList}
-              >
-                {showSavedSearchesList ? 'Close Saved Searches' : 'Saved Searches'}
-              </button>
-              {showSavedSearchesList && (
-                <div className="saved-searches-list">
-                  {savedSearches.map((search, index) => (
-                    <div
-                      key={index}
-                      className="saved-search"
-                      onClick={() => handleLoadSearch(search)}
-                    >
-                      {search.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {showHelp && (
-              <div className="help-section">
-                <h3>Help</h3>
-                <p>Welcome to VeyR - The Intralox Chatbot Aggregator</p>
-                <h4>Getting Started:</h4>
-                <ul>
-                  <li>Search for chatbots using keywords in the search bar</li>
-                  <li>Pin chatbots by clicking the pin icon</li>
-                  <li>Switch to chat mode to interact with pinned chatbots</li>
-                </ul>
-                <h4>Features:</h4>
-                <ul>
-                  <li>Search: Find chatbots by name, tags, or content</li>
-                  <li>Pin: Save chatbots for quick access</li>
-                  <li>Tags: Filter chatbots by category</li>
-                  <li>SharePoint Integration: Access and manage SharePoint documents</li>
-                  <li>System Prompts: Customize bot behavior</li>
-                </ul>
-                <h4>Tips:</h4>
-                <ul>
-                  <li>Use AND/OR in search for complex queries</li>
-                  <li>Pin multiple bots to chat with them simultaneously</li>
-                  <li>Save frequent searches for quick access</li>
-                </ul>
+        <div className="content-area">
+          {mode === 'chat' ? (
+            // Chat Mode Content
+            <div className="chat-content">
+              <div className="chat-history" ref={chatHistoryRef}>
+                {chatHistory.map((message, index) => (
+                  <div key={index} className={`message ${message.sender}`}>
+                    {message.text}
+                  </div>
+                ))}
               </div>
-            )}
-
-            {showStats && (
-              <div className="stats-section">
-                <h3>Statistics for Pinned Chatbots</h3>
-                <div className="stats-grid">
-                  <div className="stat-item">
-                    <FaCheckCircle className="status-icon success" />
-                    <h4>Processed</h4>
-                    <p>{pinnedBots.reduce((sum, bot) => {
-                      const stats = getStatsForBot(bot.id);
-                      return sum + stats.success;
-                    }, 0)}</p>
-                  </div>
-                  <div className="stat-item">
-                    <FaCheckCircle className="status-icon pending" />
-                    <h4>Processing</h4>
-                    <p>{pinnedBots.reduce((sum, bot) => {
-                      const stats = getStatsForBot(bot.id);
-                      return sum + stats.pending;
-                    }, 0)}</p>
-                  </div>
-                  <div className="stat-item">
-                    <FaTimesCircle className="status-icon failed" />
-                    <h4>Failed</h4>
-                    <p>{pinnedBots.reduce((sum, bot) => {
-                      const stats = getStatsForBot(bot.id);
-                      return sum + stats.failed;
-                    }, 0)}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="bot-list">
-              {(window.innerWidth <= 768 ? 
-                filteredBots.slice(indexOfFirstBot, indexOfLastBot) : 
-                currentBots
-              ).map((bot) => (
-                <div
-                  key={bot.id}
-                  className="bot-card"
-                  onContextMenu={(e) => handleContextMenu(e, 'bot', bot.id)}
-                >
-                  <div className="bot-header">
-                    <h3>{bot.name}</h3>
-                    <div className="bot-actions">
-                      <button className="pin-button" onClick={() => togglePin(bot.id)}>
-                        <FaThumbtack 
-                          className={pinnedBots.some((b) => b.id === bot.id) ? 'pinned' : ''}
-                          style={{ transform: pinnedBots.some((b) => b.id === bot.id) ? 'rotate(45deg)' : 'none' }}
-                        />
-                      </button>
-                      <button
-                        className="edit-button hidden"
-                        onClick={() => handleEdit(bot.id, 'name')}
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="delete-button hidden"
-                        onClick={() => handleDelete(bot.id, 'bot')}
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="bot-tags-container">
-                      <div className="bot-tags">
-                          {bot.tags.map((tag, index) => (
-                              <span 
-                                key={index} 
-                                className="tag"
-                                onContextMenu={(e) => handleContextMenu(e, 'tag', bot.id, index)}
-                              >
-                                {tag}
-                              </span>
-                          ))}
-                          <button className="add-tag-button" onClick={() => addTag(bot.id)}>
-                              <FaPlus />
-                          </button>
-                      </div>
-                  </div>
-                  <button className="expand-button" onClick={() => toggleExpand(bot.id)}>
-                      {expandedBots[bot.id] ? <FaChevronUp /> : <FaChevronDown />}
+              {chatHistory.length > 0 && (
+                <div className="chat-controls">
+                  <button className="clear-chat" onClick={() => setChatHistory([])}>
+                    Clear Chat
                   </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            // Search Mode Content
+            <div className="search-content">
+              <div className="controls" ref={controlsRef}>
+                <button onClick={() => setShowHelp(!showHelp)}>
+                  <FaQuestionCircle /> Help
+                </button>
+                <button onClick={() => setShowStats(!showStats)}>
+                  <FaPlus /> Statistics
+                </button>
+                <button onClick={addBot}>
+                  <FaPlus /> Add Bot
+                </button>
+                {allBots.length > pinnedBots.length && (
+                  <button onClick={() => {
+                    const unpinnedBots = allBots.filter(bot => !pinnedBots.some(p => p.id === bot.id));
+                    setPinnedBots([...pinnedBots, ...unpinnedBots]);
+                  }}>
+                    <FaThumbtack /> Pin All
+                  </button>
+                )}
+                {pinnedBots.length >= 2 && pinnedBots.length < allBots.length && (
+                  <button onClick={() => setShowPinnedOnly(!showPinnedOnly)}>
+                    {showPinnedOnly ? <FaSearch /> : <FaThumbtack />}
+                    {showPinnedOnly ? 'Show All' : 'Show Pinned Only'}
+                  </button>
+                )}
+                {pinnedBots.length > 0 && (
+                  <button onClick={() => {
+                    setPinnedBots([]);
+                    setMode('search');
+                    setShowPinnedOnly(false);
+                    handleSearch();
+                  }}>
+                    <FaThumbtack /> Clear All Pins
+                  </button>
+                )}
+              </div>
 
-                  {expandedBots[bot.id] && (
-                    <div className="bot-expanded-content">
-                      <div className="bot-links">
-                        <button className="add-sharepoint-link" onClick={() => handleAddSharePointLink(bot.id)}>
-                          <FaLink /> SharePoint Site
-                          {bot.links[0] && (
-                            <span className="current-url">({bot.links[0].url})</span>
-                          )}
-                        </button>
-                        <LinkStatusDashboard links={bot.links} botId={bot.id} />
+              <div className="saved-searches-section">
+                <button 
+                  className="saved-searches-link" 
+                  onClick={toggleSavedSearchesList}
+                >
+                  {showSavedSearchesList ? 'Close Saved Searches' : 'Saved Searches'}
+                </button>
+                {showSavedSearchesList && (
+                  <div className="saved-searches-list">
+                    {savedSearches.map((search, index) => (
+                      <div
+                        key={index}
+                        className="saved-search"
+                        onClick={() => handleLoadSearch(search)}
+                      >
+                        {search.name}
                       </div>
-                      <div className="bot-system-prompt">
-                        <div className="system-prompt-header">
-                          <h4>System Prompt:</h4>
-                          <button 
-                            className="edit-button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              const textarea = e.target.closest('.bot-system-prompt').querySelector('textarea');
-                              if (!editingPrompts[bot.id]) {
-                                // Entering edit mode
-                                textarea.readOnly = false;
-                                textarea.focus();
-                                setEditingPrompts(prev => ({ ...prev, [bot.id]: true }));
-                              } else {
-                                // Saving changes
-                                textarea.readOnly = true;
-                                setEditingPrompts(prev => ({ ...prev, [bot.id]: false }));
-                                handleSystemPromptEdit(bot.id, textarea.value);
-                              }
-                            }}
-                          >
-                            {editingPrompts[bot.id] ? <FaSave /> : <FaEdit />}
-                          </button>
-                        </div>
-                        <textarea
-                          readOnly={!editingPrompts[bot.id]}
-                          value={bot.systemPrompt}
-                          onChange={(e) => handleSystemPromptEdit(bot.id, e.target.value)}
-                        />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {showHelp && (
+                <div className="help-section">
+                  <h3>Help</h3>
+                  <p>Welcome to VeyR - The Intralox Chatbot Aggregator</p>
+                  <h4>Getting Started:</h4>
+                  <ul>
+                    <li>Search for chatbots using keywords in the search bar</li>
+                    <li>Pin chatbots by clicking the pin icon</li>
+                    <li>Switch to chat mode to interact with pinned chatbots</li>
+                  </ul>
+                  <h4>Features:</h4>
+                  <ul>
+                    <li>Search: Find chatbots by name, tags, or content</li>
+                    <li>Pin: Save chatbots for quick access</li>
+                    <li>Tags: Filter chatbots by category</li>
+                    <li>SharePoint Integration: Access and manage SharePoint documents</li>
+                    <li>System Prompts: Customize bot behavior</li>
+                  </ul>
+                  <h4>Tips:</h4>
+                  <ul>
+                    <li>Use AND/OR in search for complex queries</li>
+                    <li>Pin multiple bots to chat with them simultaneously</li>
+                    <li>Save frequent searches for quick access</li>
+                  </ul>
+                </div>
+              )}
+
+              {showStats && (
+                <div className="stats-section">
+                  <h3>Statistics for Pinned Chatbots</h3>
+                  <div className="stats-grid">
+                    <div className="stat-item">
+                      <FaThumbtack className="status-icon" style={{ transform: 'rotate(45deg)' }} />
+                      <h4>Pinned Chatbots</h4>
+                      <p>{pinnedBots.length}</p>
+                    </div>
+                    <div className="stat-item">
+                      <FaCheckCircle className="status-icon success" />
+                      <h4>Processed</h4>
+                      <p>{pinnedBots.reduce((sum, bot) => {
+                        const stats = getStatsForBot(bot.id);
+                        return sum + stats.success;
+                      }, 0)}</p>
+                    </div>
+                    <div className="stat-item">
+                      <FaCheckCircle className="status-icon pending" />
+                      <h4>Processing</h4>
+                      <p>{pinnedBots.reduce((sum, bot) => {
+                        const stats = getStatsForBot(bot.id);
+                        return sum + stats.pending;
+                      }, 0)}</p>
+                    </div>
+                    <div className="stat-item">
+                      <FaTimesCircle className="status-icon failed" />
+                      <h4>Failed</h4>
+                      <p>{pinnedBots.reduce((sum, bot) => {
+                        const stats = getStatsForBot(bot.id);
+                        return sum + stats.failed;
+                      }, 0)}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="bot-list">
+                {(window.innerWidth <= 768 ? 
+                  filteredBots.slice(indexOfFirstBot, indexOfLastBot) : 
+                  currentBots
+                ).map((bot) => (
+                  <div
+                    key={bot.id}
+                    className="bot-card"
+                    onContextMenu={(e) => handleContextMenu(e, 'bot', bot.id)}
+                  >
+                    <div className="bot-header">
+                      <h3>{bot.name}</h3>
+                      <div className="bot-actions">
+                        <button className="pin-button" onClick={() => togglePin(bot.id)}>
+                          <FaThumbtack 
+                            className={pinnedBots.some((b) => b.id === bot.id) ? 'pinned' : ''}
+                            style={{ transform: pinnedBots.some((b) => b.id === bot.id) ? 'rotate(45deg)' : 'none' }}
+                          />
+                        </button>
+                        <button
+                          className="edit-button hidden"
+                          onClick={() => handleEdit(bot.id, 'name')}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="delete-button hidden"
+                          onClick={() => handleDelete(bot.id, 'bot')}
+                        >
+                          <FaTrash />
+                        </button>
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        {mode === 'search' && (
-          <div className="pagination mobile-pagination">
-            <span>
-              {`${indexOfFirstBot + 1}-${Math.min(indexOfLastBot, filteredBots.length)}/${filteredBots.length}`}
-            </span>
-            <div className="pagination-buttons">
-              {(() => {
-                const visiblePages = getVisiblePageNumbers();
-                const halfVisible = Math.floor(visiblePages / 2);
-                const totalPages = Math.ceil(filteredBots.length / botsPerPage);
-                const pageNumbers = new Set(); // Use Set to prevent duplicates
-
-                // Always add first page if we're not on it
-                if (currentPage > 1) {
-                  pageNumbers.add(1);
-                }
-
-                // Add ellipsis after first page if needed
-                if (currentPage > halfVisible + 2) {
-                  pageNumbers.add('start-ellipsis');
-                }
-
-                // Add pages around current page
-                for (let i = Math.max(2, currentPage - halfVisible); 
-                     i <= Math.min(totalPages - 1, currentPage + halfVisible); 
-                     i++) {
-                  pageNumbers.add(i);
-                }
-
-                // Add ellipsis before last page if needed
-                if (currentPage < totalPages - halfVisible - 1) {
-                  pageNumbers.add('end-ellipsis');
-                }
-
-                // Always add last page if we're not on it
-                if (currentPage < totalPages) {
-                  pageNumbers.add(totalPages);
-                }
-
-                // Render the page numbers
-                return Array.from(pageNumbers).map((pageNum, index) => {
-                  if (pageNum === 'start-ellipsis' || pageNum === 'end-ellipsis') {
-                    return <span key={`ellipsis-${index}`}>...</span>;
-                  }
-                  return (
-                    <button
-                      key={pageNum}
-                      className={currentPage === pageNum ? 'active' : ''}
-                      onClick={() => handlePageChange(pageNum)}
-                    >
-                      {pageNum}
+                    <div className="bot-tags-container">
+                        <div className="bot-tags">
+                            {bot.tags.map((tag, index) => (
+                                <span 
+                                  key={index} 
+                                  className="tag"
+                                  onContextMenu={(e) => handleContextMenu(e, 'tag', bot.id, index)}
+                                >
+                                  {tag}
+                                </span>
+                            ))}
+                            <button className="add-tag-button" onClick={() => addTag(bot.id)}>
+                                <FaPlus />
+                            </button>
+                        </div>
+                    </div>
+                    <button className="expand-button" onClick={() => toggleExpand(bot.id)}>
+                        {expandedBots[bot.id] ? <FaChevronUp /> : <FaChevronDown />}
                     </button>
-                  );
-                });
-              })()}
+
+                    {expandedBots[bot.id] && (
+                      <div className="bot-expanded-content">
+                        <div className="bot-links">
+                          <button className="add-sharepoint-link" onClick={() => handleAddSharePointLink(bot.id)}>
+                            <FaLink /> SharePoint Site
+                            {bot.links[0] && (
+                              <span className="current-url">({bot.links[0].url})</span>
+                            )}
+                          </button>
+                          <LinkStatusDashboard links={bot.links} botId={bot.id} />
+                        </div>
+                        <div className="bot-system-prompt">
+                          <div className="system-prompt-header">
+                            <h4>System Prompt:</h4>
+                            <button 
+                              className="edit-button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                const textarea = e.target.closest('.bot-system-prompt').querySelector('textarea');
+                                if (!editingPrompts[bot.id]) {
+                                  // Entering edit mode
+                                  textarea.readOnly = false;
+                                  textarea.focus();
+                                  setEditingPrompts(prev => ({ ...prev, [bot.id]: true }));
+                                } else {
+                                  // Saving changes
+                                  textarea.readOnly = true;
+                                  setEditingPrompts(prev => ({ ...prev, [bot.id]: false }));
+                                  handleSystemPromptEdit(bot.id, textarea.value);
+                                }
+                              }}
+                            >
+                              {editingPrompts[bot.id] ? <FaSave /> : <FaEdit />}
+                            </button>
+                          </div>
+                          <textarea
+                            readOnly={!editingPrompts[bot.id]}
+                            value={bot.systemPrompt}
+                            onChange={(e) => handleSystemPromptEdit(bot.id, e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="pagination mobile-pagination">
+                <span>
+                  {`${indexOfFirstBot + 1}-${Math.min(indexOfLastBot, filteredBots.length)}/${filteredBots.length}`}
+                </span>
+                <div className="pagination-buttons">
+                  {(() => {
+                    const visiblePages = getVisiblePageNumbers();
+                    const halfVisible = Math.floor(visiblePages / 2);
+                    const totalPages = Math.ceil(filteredBots.length / botsPerPage);
+                    const pageNumbers = new Set(); // Use Set to prevent duplicates
+
+                    // Always add first page if we're not on it
+                    if (currentPage > 1) {
+                      pageNumbers.add(1);
+                    }
+
+                    // Add ellipsis after first page if needed
+                    if (currentPage > halfVisible + 2) {
+                      pageNumbers.add('start-ellipsis');
+                    }
+
+                    // Add pages around current page
+                    for (let i = Math.max(2, currentPage - halfVisible); 
+                         i <= Math.min(totalPages - 1, currentPage + halfVisible); 
+                         i++) {
+                      pageNumbers.add(i);
+                    }
+
+                    // Add ellipsis before last page if needed
+                    if (currentPage < totalPages - halfVisible - 1) {
+                      pageNumbers.add('end-ellipsis');
+                    }
+
+                    // Always add last page if we're not on it
+                    if (currentPage < totalPages) {
+                      pageNumbers.add(totalPages);
+                    }
+
+                    // Render the page numbers
+                    return Array.from(pageNumbers).map((pageNum, index) => {
+                      if (pageNum === 'start-ellipsis' || pageNum === 'end-ellipsis') {
+                        return <span key={`ellipsis-${index}`}>...</span>;
+                      }
+                      return (
+                        <button
+                          key={pageNum}
+                          className={currentPage === pageNum ? 'active' : ''}
+                          onClick={() => handlePageChange(pageNum)}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    });
+                  })()}
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {contextMenu.show && (
-          <div 
-            className="context-menu"
-            style={{ 
-              position: 'fixed',
-              top: contextMenu.y,
-              left: contextMenu.x,
-              zIndex: 1000
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="context-menu">
             {contextMenu.type === 'bot' && (
               <>
                 <button onClick={() => {
