@@ -49,7 +49,7 @@
 
 .mode-toggle {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   justify-content: center;
   margin-top: 10px;
 }
@@ -58,17 +58,28 @@
   background: none;
   border: none;
   padding: 10px;
-  margin-left: 10px;
   cursor: pointer;
   border-radius: 5px;
   font-size: 24px;
   color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.mode-toggle button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.mode-toggle button:hover {
+  background-color: #f0f0f0;
 }
 
 .mode-toggle button.active {
   background-color: #ddd;
-  font-weight: bold;
-  color: #000;
 }
 
 .search-chat-area {
