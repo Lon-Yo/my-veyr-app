@@ -364,29 +364,30 @@ function App() {
   }, [searchText]);
 
   useEffect(() => {
-    // Hide chat history when switching to search mode
+    // When switching to search mode
     if (mode === 'search') {
       setChatHistory([]);
-      // Show all bots in search mode if not showing pinned only
-      if (!showPinnedOnly) {
+      // Clear search suggestions when returning to search
+      setSearchSuggestions([]);
+      // Show search results if there's a search term, otherwise show all bots
+      if (searchText.trim()) {
         handleSearch();
+      } else {
+        setFilteredBots(allBots);
       }
+      // Reset showPinnedOnly when switching to search mode
+      setShowPinnedOnly(false);
     } else {
       // In chat mode, only show pinned bots
       setFilteredBots(pinnedBots);
     }
-  }, [mode]);
+    // Reset current page when changing modes
+    setCurrentPage(1);
+  }, [mode, allBots]);
 
   useEffect(() => {
     if (showPinnedOnly) {
-      // Only show pinned bots if there are any, otherwise show all bots
-      if (pinnedBots.length > 0) {
-        setFilteredBots(pinnedBots);
-      } else {
-        // If no pins, disable pinned view and show all bots
-        setShowPinnedOnly(false);
-        setFilteredBots(allBots);
-      }
+      setFilteredBots(pinnedBots);
     } else {
       // When showing all, either show search results or all bots
       if (searchText.trim()) {
@@ -396,7 +397,7 @@ function App() {
       }
     }
     setCurrentPage(1);
-  }, [showPinnedOnly, allBots, pinnedBots, searchText]);
+  }, [showPinnedOnly, searchText]);
 
   // Update filtered bots when pins change
   useEffect(() => {
@@ -437,47 +438,22 @@ function App() {
         const botLinks = bot.links.map(link => link.url.toLowerCase()).join(' ');
         const botSystemPrompt = bot.systemPrompt.toLowerCase();
         
-        // Split the search text into terms and handle AND/OR logic
-        const searchTerms = searchText.toLowerCase().split(/\s+(?:and|or)\s+/);
-        const andTerms = searchText.toLowerCase().match(/(\w+)\s+and\s+(\w+)/g);
-        const orTerms = searchText.toLowerCase().match(/(\w+)\s+or\s+(\w+)/g);
+        // Split search terms by '+' for OR conditions, then by space for AND conditions
+        const searchTerms = searchText.toLowerCase().trim();
+        const orGroups = searchTerms.split('+');
         
-        // Check if each term matches the bot's name, tags, links, or system prompt
-        const termMatches = searchTerms.map(term => 
-            botName.includes(term) || 
-            botTags.includes(term) || 
-            botLinks.includes(term) || 
-            botSystemPrompt.includes(term)
-        );
-        
-        if (andTerms) {
-            // Handle AND conditions: All terms connected by AND must be true
-            const andMatches = andTerms.map(andTerm => {
-            const terms = andTerm.split(/\s+and\s+/);
-            return terms.every(term => 
-                botName.includes(term) || 
-                botTags.includes(term) || 
-                botLinks.includes(term) || 
-                botSystemPrompt.includes(term)
+        return orGroups.some(group => {
+          const andTerms = group.trim().split(' ').filter(term => term.length > 0);
+          return andTerms.every(term => {
+            const searchTerm = term.trim();
+            return searchTerm && (
+              botName.includes(searchTerm) || 
+              botTags.includes(searchTerm) || 
+              botLinks.includes(searchTerm) || 
+              botSystemPrompt.includes(searchTerm)
             );
-            });
-            return andMatches.every(match => match);
-        } else if (orTerms) {
-            // Handle OR conditions: At least one term connected by OR must be true
-            const orMatches = orTerms.map(orTerm => {
-            const terms = orTerm.split(/\s+or\s+/);
-            return terms.some(term => 
-                botName.includes(term) || 
-                botTags.includes(term) || 
-                botLinks.includes(term) || 
-                botSystemPrompt.includes(term)
-            );
-            });
-            return termMatches.some(match => match) || orMatches.some(match => match);
-        } else {
-            // Default: If no AND/OR, any term match is sufficient
-            return termMatches.some(match => match);
-        }
+          });
+        });
       });
 
       if (showPinnedOnly) {
@@ -486,29 +462,36 @@ function App() {
 
       setFilteredBots(filtered);
       setCurrentPage(1);
+    } else {
+      // If no search text, show all bots or pinned bots based on showPinnedOnly
+      setFilteredBots(showPinnedOnly ? pinnedBots : allBots);
     }
   };
   
 
     const handleChatSubmit = () => {
-        if (searchText.trim() === '') return;
-    
-        const newMessage = {
+      // Don't allow submission if no bots are pinned
+      if (pinnedBots.length === 0) return;
+      
+      // Don't submit empty messages
+      if (searchText.trim() === '') return;
+
+      const newMessage = {
         text: searchText,
         sender: 'user',
-        };
-    
-        setChatHistory([...chatHistory, newMessage]);
-        setSearchText('');
-    
-        // Simulate chatbot response (replace with actual API call)
-        setTimeout(() => {
+      };
+
+      setChatHistory([...chatHistory, newMessage]);
+      setSearchText('');
+
+      // Simulate chatbot response (replace with actual API call)
+      setTimeout(() => {
         const botResponse = {
-            text: `This is a simulated response from ${pinnedBots.length > 0 ? pinnedBots.map(bot => bot.name).join(', ') : 'selected bots'}.`,
-            sender: 'bot',
+          text: `This is a simulated response from ${pinnedBots.map(bot => bot.name).join(', ')}.`,
+          sender: 'bot',
         };
         setChatHistory((prevChatHistory) => [...prevChatHistory, botResponse]);
-        }, 500);
+      }, 500);
     };
 
     const handleNewChat = () => {
@@ -847,13 +830,16 @@ function App() {
       }
     }
    
-    setSearchSuggestions(
-      newSearchText
-        ? getInitialSearchSuggestions().filter((item) =>
-            item.toLowerCase().includes(newSearchText.toLowerCase())
-          )
-        : []
-    );
+    // Only show suggestions in search mode
+    if (mode === 'search') {
+      setSearchSuggestions(
+        newSearchText
+          ? getInitialSearchSuggestions().filter((item) =>
+              item.toLowerCase().includes(newSearchText.toLowerCase())
+            )
+          : []
+      );
+    }
   };
   
   const handleSuggestionClick = (suggestion) => {
@@ -1059,6 +1045,17 @@ function App() {
     }
   }, [chatHistory, mode]);
 
+  // Add this helper function to determine how many page numbers to show
+  const getVisiblePageNumbers = () => {
+    if (window.innerWidth <= 768) {
+      return 3; // Show only 3 pages on mobile (current, prev, next)
+    } else if (window.innerWidth <= 1024) {
+      return 5; // Show 5 pages on tablet
+    } else {
+      return 7; // Show up to 7 pages on desktop
+    }
+  };
+
   return (
     <div className="veyr-container" data-mode={mode}>
         <input 
@@ -1177,8 +1174,12 @@ function App() {
                 )}
 
                 {mode === 'chat' && (
-                    <button className="chat-submit-button" onClick={handleChatSubmit}>
-                    <FaArrowUp />
+                    <button 
+                      className={`chat-submit-button ${pinnedBots.length === 0 ? 'disabled' : ''}`}
+                      onClick={handleChatSubmit}
+                      disabled={pinnedBots.length === 0}
+                    >
+                      <FaArrowUp />
                     </button>
                 )}
             </div>
@@ -1273,13 +1274,15 @@ function App() {
           <button onClick={addBot}>
             <FaPlus /> Add Bot
           </button>
-          <button onClick={() => {
-            const unpinnedBots = allBots.filter(bot => !pinnedBots.some(p => p.id === bot.id));
-            setPinnedBots([...pinnedBots, ...unpinnedBots]);
-          }}>
-            <FaThumbtack /> Pin All
-          </button>
-          {pinnedBots.length >= 2 && (
+          {allBots.length > pinnedBots.length && (
+            <button onClick={() => {
+              const unpinnedBots = allBots.filter(bot => !pinnedBots.some(p => p.id === bot.id));
+              setPinnedBots([...pinnedBots, ...unpinnedBots]);
+            }}>
+              <FaThumbtack /> Pin All
+            </button>
+          )}
+          {pinnedBots.length >= 2 && pinnedBots.length < allBots.length && (
             <button onClick={() => setShowPinnedOnly(!showPinnedOnly)}>
               {showPinnedOnly ? <FaSearch /> : <FaThumbtack />}
               {showPinnedOnly ? 'Show All' : 'Show Pinned'}
@@ -1428,18 +1431,55 @@ function App() {
             {`${indexOfFirstBot + 1}-${Math.min(indexOfLastBot, filteredBots.length)}/${filteredBots.length}`}
           </span>
           <div className="pagination-buttons">
-            {Array.from({ length: Math.ceil(filteredBots.length / botsPerPage) }, (_, i) => {
-              const shouldShow = Math.abs(currentPage - (i + 1)) <= 1;
-              return shouldShow ? (
-                <button
-                  key={i + 1}
-                  className={currentPage === i + 1 ? 'active' : ''}
-                  onClick={() => handlePageChange(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              ) : null;
-            })}
+            {(() => {
+              const visiblePages = getVisiblePageNumbers();
+              const halfVisible = Math.floor(visiblePages / 2);
+              const totalPages = Math.ceil(filteredBots.length / botsPerPage);
+              const pageNumbers = new Set(); // Use Set to prevent duplicates
+
+              // Always add first page if we're not on it
+              if (currentPage > 1) {
+                pageNumbers.add(1);
+              }
+
+              // Add ellipsis after first page if needed
+              if (currentPage > halfVisible + 2) {
+                pageNumbers.add('start-ellipsis');
+              }
+
+              // Add pages around current page
+              for (let i = Math.max(2, currentPage - halfVisible); 
+                   i <= Math.min(totalPages - 1, currentPage + halfVisible); 
+                   i++) {
+                pageNumbers.add(i);
+              }
+
+              // Add ellipsis before last page if needed
+              if (currentPage < totalPages - halfVisible - 1) {
+                pageNumbers.add('end-ellipsis');
+              }
+
+              // Always add last page if we're not on it
+              if (currentPage < totalPages) {
+                pageNumbers.add(totalPages);
+              }
+
+              // Render the page numbers
+              return Array.from(pageNumbers).map((pageNum, index) => {
+                if (pageNum === 'start-ellipsis' || pageNum === 'end-ellipsis') {
+                  return <span key={`ellipsis-${index}`}>...</span>;
+                }
+                return (
+                  <button
+                    key={pageNum}
+                    className={currentPage === pageNum ? 'active' : ''}
+                    onClick={() => handlePageChange(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              });
+            })()}
           </div>
         </div>
       )}

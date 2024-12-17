@@ -576,45 +576,82 @@
 }
 
 .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.pagination button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination button.active {
+  background-color: #000;
+  color: white;
+  border-color: #000;
+}
+
+.pagination span {
+  color: #666;
+  padding: 0 5px;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .mobile-pagination {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    margin: 0;
+    padding: 10px;
   }
-  
+
+  .pagination-buttons {
+    gap: 3px;
+  }
+
   .pagination button {
-    background: none;
-    border: 1px solid #ccc;
-    padding: 5px 10px;
-    margin: 0 5px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-  
-  .pagination button.active {
-    background-color: #000;
-    color: #fff;
-  }
-
-  .pagination span {
-    margin-right: 10px; /* Add some space between the text and buttons */
-  }
-
-  .expand-button {
-    background: none;
-    border: none;
-    padding: 5px 10px;
-    margin-top: 5px;
-    cursor: pointer;
-    color: #000;
-    text-decoration: underline;
+    min-width: 28px;
+    height: 28px;
     font-size: 14px;
-    float: right; /* Align to the right */
   }
-  
-  .bot-expanded-content {
-    margin-top: 10px; /* Add some space between the "More" button and the content */
-  }
+}
+
+.expand-button {
+  background: none;
+  border: none;
+  padding: 5px 10px;
+  margin-top: 5px;
+  cursor: pointer;
+  color: #000;
+  text-decoration: underline;
+  font-size: 14px;
+  float: right; /* Align to the right */
+}
+
+.bot-expanded-content {
+  margin-top: 10px; /* Add some space between the "More" button and the content */
+}
 
 .csv-format-table {
   margin: 15px 0;
@@ -1637,4 +1674,14 @@
   .stat-item p {
     font-size: 20px;
   }
+}
+
+.chat-submit-button.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.chat-submit-button.disabled:hover {
+  background: #ccc;
 }
