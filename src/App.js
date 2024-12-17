@@ -28,8 +28,8 @@ function App() {
           name: 'Customer Support Bot',
           tags: ['support', 'inquiries', 'helpdesk', 'customers'],
           links: [
-            { url: 'https://example.com/support-docs.pdf', version: '1.2', lastUpdated: '2023-07-20', status: 'success' },
-            { url: 'https://example.com/faq.txt', version: '2.0', lastUpdated: '2023-07-25', status: 'pending' },
+            { url: 'https://www.sharepoint.com/example101', version: '1.2', lastUpdated: '2023-07-20', status: 'success' },
+            { url: 'https://www.sharepoint.com/example102', version: '2.0', lastUpdated: '2023-07-25', status: 'pending' },
           ],
           systemPrompt: 'You are a helpful customer support assistant. You have been trained on the following documents: [links]. Please answer questions based on the information in these documents.',
         },
@@ -38,8 +38,8 @@ function App() {
           name: 'Sales Inquiry Bot',
           tags: ['sales', 'pricing', 'products', 'quotes', 'orders'],
           links: [
-            { url: 'https://example.com/product-catalog.pdf', version: '3.1', lastUpdated: '2023-07-15', status: 'success' },
-            { url: 'https://example.com/pricing-sheet.xlsx', version: '1.8', lastUpdated: '2023-07-28', status: 'success' },
+            { url: 'https://www.sharepoint.com/example201', version: '3.1', lastUpdated: '2023-07-15', status: 'success' },
+            { url: 'https://www.sharepoint.com/example202', version: '1.8', lastUpdated: '2023-07-28', status: 'success' },
           ],
           systemPrompt: 'You are a sales assistant providing information about our products and pricing. You are familiar with the following documents: [links]. Please provide accurate quotes and answer sales-related questions.',
         },
@@ -48,9 +48,9 @@ function App() {
           name: 'HR Policy Bot',
           tags: ['hr', 'policy', 'benefits', 'onboarding', 'employees', 'handbook'],
           links: [
-            { url: 'https://example.com/employee-handbook.pdf', version: '4.0', lastUpdated: '2023-07-10', status: 'success' },
-            { url: 'https://example.com/benefits-guide.docx', version: '1.5', lastUpdated: '2023-07-22', status: 'failed' },
-            { url: 'https://example.com/company-policies.txt', version: '2.2', lastUpdated: '2023-07-29', status: 'success' },
+            { url: 'https://www.sharepoint.com/example301', version: '4.0', lastUpdated: '2023-07-10', status: 'success' },
+            { url: 'https://www.sharepoint.com/example302', version: '1.5', lastUpdated: '2023-07-22', status: 'failed' },
+            { url: 'https://www.sharepoint.com/example303', version: '2.2', lastUpdated: '2023-07-29', status: 'success' },
           ],
           systemPrompt: 'You are an HR assistant providing information about company policies, benefits, and onboarding procedures. You have access to the following documents: [links]. Please answer questions based on these resources.',
         },
@@ -59,8 +59,8 @@ function App() {
           name: 'Technical Support Bot',
           tags: ['technical', 'support', 'troubleshooting', 'issues', 'helpdesk', 'technical documents'],
           links: [
-            { url: 'https://example.com/technical-docs.pdf', version: '1.0', lastUpdated: '2023-07-18', status: 'success' },
-            { url: 'https://example.com/troubleshooting.txt', version: '1.2', lastUpdated: '2023-07-25', status: 'success' },
+            { url: 'https://www.sharepoint.com/example401', version: '1.0', lastUpdated: '2023-07-18', status: 'success' },
+            { url: 'https://www.sharepoint.com/example402', version: '1.2', lastUpdated: '2023-07-25', status: 'success' },
           ],
           systemPrompt: 'You are a technical support assistant. You are knowledgeable about our products and have access to technical documents. Please assist users with troubleshooting and resolving technical issues.',
         },
@@ -69,8 +69,8 @@ function App() {
           name: 'Marketing Bot',
           tags: ['marketing', 'promotions', 'campaigns', 'social media', 'advertising'],
           links: [
-            { url: 'https://example.com/marketing-materials.zip', version: '2.5', lastUpdated: '2023-07-26', status: 'pending' },
-            { url: 'https://example.com/social-media-guidelines.pdf', version: '1.1', lastUpdated: '2023-07-21', status: 'success' },
+            { url: 'https://www.sharepoint.com/example501', version: '2.5', lastUpdated: '2023-07-26', status: 'pending' },
+            { url: 'https://www.sharepoint.com/example502', version: '1.1', lastUpdated: '2023-07-21', status: 'success' },
           ],
           systemPrompt: 'You are a marketing assistant. You are familiar with our marketing campaigns, promotions, and social media guidelines. Please provide information about our marketing efforts.',
         },
@@ -79,8 +79,8 @@ function App() {
           name: 'Financial Bot',
           tags: ['finance', 'accounting', 'budget', 'reports', 'expenses'],
           links: [
-            { url: 'https://example.com/financial-reports.pdf', version: '4.2', lastUpdated: '2023-07-29', status: 'success' },
-            { url: 'https://example.com/budget-guidelines.docx', version: '1.3', lastUpdated: '2023-07-27', status: 'success' },
+            { url: 'https://www.sharepoint.com/example601', version: '4.2', lastUpdated: '2023-07-29', status: 'success' },
+            { url: 'https://www.sharepoint.com/example602', version: '1.3', lastUpdated: '2023-07-27', status: 'success' },
           ],
           systemPrompt: 'You are a financial assistant. You have access to financial reports and budget guidelines. Please assist with questions related to finance and accounting.',
         },
@@ -89,8 +89,8 @@ function App() {
           name: 'Legal Bot',
           tags: ['legal', 'compliance', 'contracts', 'agreements', 'regulations'],
           links: [
-            { url: 'https://example.com/legal-docs.pdf', version: '3.0', lastUpdated: '2023-07-23', status: 'success' },
-            { url: 'https://example.com/compliance-regulations.txt', version: '1.9', lastUpdated: '2023-07-28', status: 'failed' },
+            { url: 'https://www.sharepoint.com/example701', version: '3.0', lastUpdated: '2023-07-23', status: 'success' },
+            { url: 'https://www.sharepoint.com/example702', version: '1.9', lastUpdated: '2023-07-28', status: 'failed' },
           ],
           systemPrompt: 'You are a legal assistant. You are knowledgeable about legal documents, compliance, and regulations. Please provide information based on legal resources.',
         },
@@ -99,8 +99,8 @@ function App() {
           name: 'Operations Bot',
           tags: ['operations', 'logistics', 'supply chain', 'inventory', 'processes'],
           links: [
-            { url: 'https://example.com/operations-manual.pdf', version: '2.1', lastUpdated: '2023-07-20', status: 'success' },
-            { url: 'https://example.com/inventory-report.xlsx', version: '1.6', lastUpdated: '2023-07-26', status: 'success' },
+            { url: 'https://www.sharepoint.com/example801', version: '2.1', lastUpdated: '2023-07-20', status: 'success' },
+            { url: 'https://www.sharepoint.com/example802', version: '1.6', lastUpdated: '2023-07-26', status: 'success' },
           ],
           systemPrompt: 'You are an operations assistant. You are familiar with our operations manual and inventory reports. Please assist with questions related to logistics and supply chain processes.',
         },
@@ -109,8 +109,8 @@ function App() {
           name: 'Product Development Bot',
           tags: ['product', 'development', 'innovation', 'design', 'features', 'roadmap'],
           links: [
-            { url: 'https://example.com/product-roadmap.pdf', version: '5.0', lastUpdated: '2023-07-25', status: 'success' },
-            { url: 'https://example.com/design-specs.docx', version: '2.4', lastUpdated: '2023-07-29', status: 'success' },
+            { url: 'https://www.sharepoint.com/example901', version: '5.0', lastUpdated: '2023-07-25', status: 'success' },
+            { url: 'https://www.sharepoint.com/example902', version: '2.4', lastUpdated: '2023-07-29', status: 'success' },
           ],
           systemPrompt: 'You are a product development assistant. You have access to the product roadmap and design specifications. Please provide information about product features and development plans.',
         },
@@ -119,8 +119,8 @@ function App() {
           name: 'IT Support Bot',
           tags: ['it', 'support', 'network', 'security', 'systems', 'infrastructure', 'helpdesk'],
           links: [
-            { url: 'https://example.com/it-security-policy.pdf', version: '1.7', lastUpdated: '2023-07-22', status: 'success' },
-            { url: 'https://example.com/network-diagram.png', version: '1.1', lastUpdated: '2023-07-27', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1001', version: '1.7', lastUpdated: '2023-07-22', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1002', version: '1.1', lastUpdated: '2023-07-27', status: 'success' },
           ],
           systemPrompt: 'You are an IT support assistant. You are knowledgeable about IT security policies and network infrastructure. Please assist with questions related to IT systems and security.',
         },
@@ -129,8 +129,8 @@ function App() {
           name: 'Quality Assurance Bot',
           tags: ['qa', 'testing', 'quality', 'standards'],
           links: [
-            { url: 'https://example.com/qa-guidelines.pdf', version: '2.0', lastUpdated: '2023-07-24', status: 'success' },
-            { url: 'https://example.com/testing-procedures.docx', version: '1.3', lastUpdated: '2023-07-28', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1101', version: '2.0', lastUpdated: '2023-07-24', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1102', version: '1.3', lastUpdated: '2023-07-28', status: 'success' },
           ],
           systemPrompt: 'You are a QA assistant. Help with testing procedures and quality standards.',
         },
@@ -139,7 +139,7 @@ function App() {
           name: 'Project Management Bot',
           tags: ['project', 'management', 'planning', 'agile', 'scrum'],
           links: [
-            { url: 'https://example.com/pm-handbook.pdf', version: '3.0', lastUpdated: '2023-07-25', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1201', version: '3.0', lastUpdated: '2023-07-25', status: 'success' },
           ],
           systemPrompt: 'You are a project management assistant. Help with project planning and agile methodologies.',
         },
@@ -148,7 +148,7 @@ function App() {
           name: 'Data Analytics Bot',
           tags: ['data', 'analytics', 'reporting', 'metrics'],
           links: [
-            { url: 'https://example.com/analytics-guide.pdf', version: '1.5', lastUpdated: '2023-07-26', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1301', version: '1.5', lastUpdated: '2023-07-26', status: 'success' },
           ],
           systemPrompt: 'You are a data analytics assistant. Help with data interpretation and reporting.',
         },
@@ -157,7 +157,7 @@ function App() {
           name: 'Compliance Bot',
           tags: ['compliance', 'regulations', 'audit', 'standards'],
           links: [
-            { url: 'https://example.com/compliance-docs.pdf', version: '2.1', lastUpdated: '2023-07-27', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1401', version: '2.1', lastUpdated: '2023-07-27', status: 'success' },
           ],
           systemPrompt: 'You are a compliance assistant. Help with regulatory requirements and audits.',
         },
@@ -166,7 +166,7 @@ function App() {
           name: 'Training Bot',
           tags: ['training', 'learning', 'development', 'education'],
           links: [
-            { url: 'https://example.com/training-materials.pdf', version: '1.8', lastUpdated: '2023-07-28', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1501', version: '1.8', lastUpdated: '2023-07-28', status: 'success' },
           ],
           systemPrompt: 'You are a training assistant. Help with learning and development programs.',
         },
@@ -175,7 +175,7 @@ function App() {
           name: 'Facilities Bot',
           tags: ['facilities', 'maintenance', 'building', 'equipment'],
           links: [
-            { url: 'https://example.com/facilities-manual.pdf', version: '1.2', lastUpdated: '2023-07-29', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1601', version: '1.2', lastUpdated: '2023-07-29', status: 'success' },
           ],
           systemPrompt: 'You are a facilities assistant. Help with building maintenance and equipment.',
         },
@@ -184,7 +184,7 @@ function App() {
           name: 'Research Bot',
           tags: ['research', 'development', 'innovation', 'studies'],
           links: [
-            { url: 'https://example.com/research-papers.pdf', version: '2.4', lastUpdated: '2023-07-30', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1701', version: '2.4', lastUpdated: '2023-07-30', status: 'success' },
           ],
           systemPrompt: 'You are a research assistant. Help with research and development projects.',
         },
@@ -193,7 +193,7 @@ function App() {
           name: 'Security Bot',
           tags: ['security', 'safety', 'protection', 'protocols'],
           links: [
-            { url: 'https://example.com/security-protocols.pdf', version: '3.2', lastUpdated: '2023-07-31', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1801', version: '3.2', lastUpdated: '2023-07-31', status: 'success' },
           ],
           systemPrompt: 'You are a security assistant. Help with safety and security procedures.',
         },
@@ -202,7 +202,7 @@ function App() {
           name: 'Supply Chain Bot',
           tags: ['supply', 'chain', 'logistics', 'inventory'],
           links: [
-            { url: 'https://example.com/supply-chain-docs.pdf', version: '1.6', lastUpdated: '2023-08-01', status: 'success' },
+            { url: 'https://www.sharepoint.com/example1901', version: '1.6', lastUpdated: '2023-08-01', status: 'success' },
           ],
           systemPrompt: 'You are a supply chain assistant. Help with logistics and inventory management.',
         },
@@ -211,7 +211,7 @@ function App() {
           name: 'Risk Management Bot',
           tags: ['risk', 'management', 'assessment', 'mitigation'],
           links: [
-            { url: 'https://example.com/risk-management.pdf', version: '2.3', lastUpdated: '2023-08-02', status: 'success' },
+            { url: 'https://www.sharepoint.com/example2001', version: '2.3', lastUpdated: '2023-08-02', status: 'success' },
           ],
           systemPrompt: 'You are a risk management assistant. Help with risk assessment and mitigation strategies.',
         },
@@ -220,7 +220,7 @@ function App() {
           name: 'Change Management Bot',
           tags: ['change', 'management', 'transition', 'transformation'],
           links: [
-            { url: 'https://example.com/change-management.pdf', version: '1.4', lastUpdated: '2023-08-03', status: 'success' },
+            { url: 'https://www.sharepoint.com/example2101', version: '1.4', lastUpdated: '2023-08-03', status: 'success' },
           ],
           systemPrompt: 'You are a change management assistant. Help with organizational transitions.',
         },
@@ -229,7 +229,7 @@ function App() {
           name: 'Innovation Bot',
           tags: ['innovation', 'ideas', 'creativity', 'development'],
           links: [
-            { url: 'https://example.com/innovation-guide.pdf', version: '1.9', lastUpdated: '2023-08-04', status: 'success' },
+            { url: 'https://www.sharepoint.com/example2201', version: '1.9', lastUpdated: '2023-08-04', status: 'success' },
           ],
           systemPrompt: 'You are an innovation assistant. Help with creative problem-solving and new ideas.',
         },
@@ -238,7 +238,7 @@ function App() {
           name: 'Documentation Bot',
           tags: ['documentation', 'writing', 'procedures', 'manuals'],
           links: [
-            { url: 'https://example.com/documentation-guide.pdf', version: '2.2', lastUpdated: '2023-08-05', status: 'success' },
+            { url: 'https://www.sharepoint.com/example2301', version: '2.2', lastUpdated: '2023-08-05', status: 'success' },
           ],
           systemPrompt: 'You are a documentation assistant. Help with writing and maintaining documentation.',
         },
@@ -247,7 +247,7 @@ function App() {
           name: 'Process Improvement Bot',
           tags: ['process', 'improvement', 'optimization', 'efficiency'],
           links: [
-            { url: 'https://example.com/process-improvement.pdf', version: '1.7', lastUpdated: '2023-08-06', status: 'success' },
+            { url: 'https://www.sharepoint.com/example2401', version: '1.7', lastUpdated: '2023-08-06', status: 'success' },
           ],
           systemPrompt: 'You are a process improvement assistant. Help with optimizing workflows and procedures.',
         },
@@ -256,7 +256,7 @@ function App() {
           name: 'Sustainability Bot',
           tags: ['sustainability', 'environmental', 'green', 'eco-friendly'],
           links: [
-            { url: 'https://example.com/sustainability-guide.pdf', version: '1.1', lastUpdated: '2023-08-07', status: 'success' },
+            { url: 'https://www.sharepoint.com/example2501', version: '1.1', lastUpdated: '2023-08-07', status: 'success' },
           ],
           systemPrompt: 'You are a sustainability assistant. Help with environmental initiatives and green practices.',
         }
@@ -334,8 +334,6 @@ function App() {
     itemId: null, 
     index: null 
   });
-
-  const [longPressTimer, setLongPressTimer] = useState(null);
 
   const controlsRef = useRef(null);
 
@@ -894,35 +892,6 @@ function App() {
     });
   };
 
-  const handleLongPress = (e, type, itemId, index = null) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const rect = e.target.getBoundingClientRect();
-    setContextMenu({
-      show: true,
-      x: rect.left,
-      y: rect.bottom + window.scrollY,  // Add scroll position
-      type,
-      itemId,
-      index
-    });
-  };
-
-  const handleTouchStart = (e, type, itemId, index = null) => {
-    e.preventDefault();
-    const timer = setTimeout(() => {
-      handleLongPress(e, type, itemId, index);
-    }, 500);
-    setLongPressTimer(timer);
-  };
-
-  const handleTouchEnd = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
-  };
-
   // Add click handler to close context menu when clicking outside
   useEffect(() => {
     const handleClickOutside = () => setContextMenu({ show: false });
@@ -1022,14 +991,41 @@ function App() {
     });
   };
 
-  const LinkStatusDashboard = ({ links }) => {
-    // Static example numbers
-    const stats = {
-      success: 342,  // Example processed files
-      pending: 15,   // Example processing files
-      failed: 3      // Example failed files
+  const LinkStatusDashboard = ({ links, botId }) => {
+    // Generate different stats based on botId
+    const getStatsForBot = (id) => {
+      const baseStats = {
+        1: { success: 342, pending: 15, failed: 3 },    // Customer Support Bot
+        2: { success: 256, pending: 8, failed: 5 },     // Sales Inquiry Bot
+        3: { success: 189, pending: 23, failed: 7 },    // HR Policy Bot
+        4: { success: 423, pending: 12, failed: 4 },    // Technical Support Bot
+        5: { success: 167, pending: 19, failed: 2 },    // Marketing Bot
+        6: { success: 298, pending: 7, failed: 6 },     // Financial Bot
+        7: { success: 156, pending: 14, failed: 8 },    // Legal Bot
+        8: { success: 234, pending: 9, failed: 3 },     // Operations Bot
+        9: { success: 312, pending: 16, failed: 5 },    // Product Development Bot
+        10: { success: 278, pending: 11, failed: 4 },   // IT Support Bot
+        11: { success: 145, pending: 8, failed: 2 },    // Quality Assurance Bot
+        12: { success: 198, pending: 13, failed: 6 },   // Project Management Bot
+        13: { success: 467, pending: 21, failed: 9 },   // Data Analytics Bot
+        14: { success: 223, pending: 17, failed: 3 },   // Compliance Bot
+        15: { success: 178, pending: 12, failed: 4 },   // Training Bot
+        16: { success: 134, pending: 6, failed: 2 },    // Facilities Bot
+        17: { success: 289, pending: 18, failed: 7 },   // Research Bot
+        18: { success: 156, pending: 9, failed: 3 },    // Security Bot
+        19: { success: 245, pending: 14, failed: 5 },   // Supply Chain Bot
+        20: { success: 167, pending: 11, failed: 4 },   // Risk Management Bot
+        21: { success: 143, pending: 8, failed: 2 },    // Change Management Bot
+        22: { success: 198, pending: 15, failed: 6 },   // Innovation Bot
+        23: { success: 267, pending: 13, failed: 5 },   // Documentation Bot
+        24: { success: 189, pending: 10, failed: 3 },   // Process Improvement Bot
+        25: { success: 145, pending: 7, failed: 2 }     // Sustainability Bot
+      };
+      return baseStats[id] || { success: 0, pending: 0, failed: 0 };
     };
-  
+
+    const stats = getStatsForBot(botId);
+
     return (
       <div className="link-status-dashboard">
         <div className="status-item">
@@ -1061,34 +1057,38 @@ function App() {
           onChange={handleUpload}
         />
         <div className="header">
-            <button 
-                className="hamburger-menu" 
-                onClick={() => setShowMenu(!showMenu)}
-                style={{ display: showMenu ? 'none' : 'flex' }}
-            >
-                <span className="hamburger-line"></span>
-                <span className="hamburger-line"></span>
-                <span className="hamburger-line"></span>
-            </button>
-            <h1>VeyR</h1>
-            <span className="header-subtitle">- The Intralox Chatbot Aggregator</span>
+          <button 
+            className="hamburger-menu" 
+            onClick={() => setShowMenu(!showMenu)}
+            style={{ display: showMenu ? 'none' : 'flex' }}
+          >
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+          </button>
+          <div className="header-content">
+            <div className="title-row">
+              <h1>VeyR</h1>
+              <span className="header-subtitle">- The Intralox Chatbot Aggregator</span>
+            </div>
             <div className="mode-toggle">
-            <button
+              <button
                 className={mode === 'search' ? 'active' : ''}
                 onClick={() => setMode('search')}
-            >
+              >
                 <FaSearch />
-            </button>
-            <button
+              </button>
+              <button
                 className={mode === 'chat' ? 'active' : ''}
                 onClick={() => {
-                    setMode('chat');
-                    setSearchText(''); // Clear the search text
-                  }}
-            >
+                  setMode('chat');
+                  setSearchText('');
+                }}
+              >
                 <FaComment />
-            </button>
+              </button>
             </div>
+          </div>
         </div>
 
         {showMenu && (
@@ -1244,14 +1244,14 @@ function App() {
       )}
 
       <div className="bot-list">
-        {(window.innerWidth <= 768 ? filteredBots : currentBots).map((bot) => (
+        {(window.innerWidth <= 768 ? 
+          filteredBots.slice(indexOfFirstBot, indexOfLastBot) : 
+          currentBots
+        ).map((bot) => (
           <div
             key={bot.id}
             className="bot-card"
             onContextMenu={(e) => handleContextMenu(e, 'bot', bot.id)}
-            onTouchStart={(e) => handleTouchStart(e, 'bot', bot.id)}
-            onTouchEnd={handleTouchEnd}
-            onTouchMove={handleTouchEnd}
           >
             <div className="bot-header">
               <h3>{bot.name}</h3>
@@ -1283,9 +1283,6 @@ function App() {
                           key={index} 
                           className="tag"
                           onContextMenu={(e) => handleContextMenu(e, 'tag', bot.id, index)}
-                          onTouchStart={(e) => handleTouchStart(e, 'tag', bot.id, index)}
-                          onTouchEnd={handleTouchEnd}
-                          onTouchMove={handleTouchEnd}
                         >
                           {tag}
                         </span>
@@ -1308,7 +1305,7 @@ function App() {
                         <span className="current-url">({bot.links[0].url})</span>
                       )}
                     </button>
-                    <LinkStatusDashboard links={bot.links} />
+                    <LinkStatusDashboard links={bot.links} botId={bot.id} />
                 </div>
                 <div className="bot-system-prompt">
                     <div className="system-prompt-header">
@@ -1336,8 +1333,8 @@ function App() {
         ))}
       </div>
 
-      {mode === 'search' && window.innerWidth > 768 && (
-        <div className="pagination">
+      {mode === 'search' && (
+        <div className="pagination mobile-pagination">
           <span>
             {`${indexOfFirstBot + 1}-${Math.min(indexOfLastBot, filteredBots.length)}/${filteredBots.length}`}
           </span>
