@@ -1840,10 +1840,17 @@
 /* Center the clear chat button without affecting the slider centering */
 .chat-mode-toggle .clear-chat {
   position: absolute;
-  right: 10px;
+  right: 30px; /* Increased from 20px to 30px to move button left */
+  margin-left: auto;
 }
 
-/* Remove the centering group styles since we want left alignment */
+/* Ensure consistent positioning on mobile */
+@media screen and (max-width: 768px) {
+  .chat-mode-toggle .clear-chat {
+    right: 30px; /* Keep consistent with desktop */
+  }
+}
+
 /* The switch - the box around the slider */
 .switch {
   position: relative;
