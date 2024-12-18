@@ -1252,23 +1252,25 @@ function App() {
               <span className="header-subtitle">- The Intralox Chatbot Aggregator</span>
             </div>
             <div className="mode-toggle">
-              {(!mode === 'chat' || !isOrchestratorMode) && (
-                <button
-                  className={mode === 'search' ? 'active' : ''}
-                  onClick={() => setMode('search')}
-                >
-                  <FaSearch size={24} />
-                </button>
+              {mode === 'search' && (
+                <>
+                  <button
+                    className={mode === 'search' ? 'active' : ''}
+                    onClick={() => setMode('search')}
+                  >
+                    <FaSearch size={24} />
+                  </button>
+                  <button
+                    className={mode === 'chat' ? 'active' : ''}
+                    onClick={() => {
+                      setMode('chat');
+                      setSearchText('');
+                    }}
+                  >
+                    <FaComment size={24} />
+                  </button>
+                </>
               )}
-              <button
-                className={mode === 'chat' ? 'active' : ''}
-                onClick={() => {
-                  setMode('chat');
-                  setSearchText('');
-                }}
-              >
-                <FaComment size={24} />
-              </button>
             </div>
           </div>
         </div>
@@ -1541,7 +1543,7 @@ function App() {
                   <ul>
                     <li>"support" → Finds any bot with "support" in name or tags</li>
                     <li>"technical support" → Finds bots with both words</li>
-                    <li>"hr policy OR sales" → Finds bots with either both "hr" and "policy", or "sales"</li>
+                    <li>"hr policy OR sales" �� Finds bots with either both "hr" and "policy", or "sales"</li>
                     <li>"customer service OR technical support OR helpdesk" → Finds bots matching any of these combinations</li>
                   </ul>
                 </div>
