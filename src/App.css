@@ -374,8 +374,14 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 .message.user {
@@ -2025,4 +2031,97 @@ input:checked + .slider:before {
 
 .feedback-button:hover {
   color: rgba(255, 255, 255, 0.6) !important; /* Grey on hover */
+}
+
+/* Feedback dialog styling */
+.feedback-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.feedback-dialog {
+  background: #f8f8f8;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-dialog h3 {
+  margin: 0 0 15px 0;
+  color: #000;
+  font-size: 16px;
+}
+
+.feedback-dialog textarea {
+  width: calc(100% - 24px);
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.feedback-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.feedback-dialog-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.feedback-dialog-buttons button:first-child {
+  background: #f0f0f0;
+  color: #000;
+}
+
+.feedback-dialog-buttons button:last-child {
+  background: #000;
+  color: white;
+}
+
+.feedback-dialog-buttons button:hover {
+  opacity: 0.9;
+}
+
+/* Update the animation keyframes and timing */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Apply slower animation to chat bubbles */
+.rce-mbox {
+  animation: fadeIn 0.5s ease-out !important; /* Increased from 0.3s to 0.5s */
+}
+
+/* Optional: Add a slight delay for each subsequent message */
+.rce-container-mlist .rce-mbox {
+  animation-duration: 0.5s !important;
+  animation-timing-function: ease-out !important;
 }
