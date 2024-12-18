@@ -306,6 +306,7 @@ function App() {
   const chatInputRef = useRef(null);
   const searchInputRef = useRef(null);
   const chatHistoryRef = useRef(null);
+  const messageListRef = useRef(null);
 
   const [mode, setMode] = useState('chat');
   const [searchText, setSearchText] = useState('');
@@ -515,13 +516,11 @@ function App() {
     const handleChatSubmit = () => {
       if (!searchText.trim() || (!isOrchestratorMode && pinnedBots.length === 0)) return;
 
-      // Add user message
       const userMessage = {
         text: searchText,
         sender: 'user'
       };
 
-      // Add bot response
       const botResponse = {
         text: isOrchestratorMode 
           ? "The orchestrator is analyzing your message..."
@@ -530,16 +529,15 @@ function App() {
       };
 
       setChatHistory(prev => [...prev, userMessage, botResponse]);
-      
-      // Clear the input field
       setSearchText('');
 
-      // Scroll to bottom of chat
-      if (chatHistoryRef.current) {
-        setTimeout(() => {
-          chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
-        }, 100);
-      }
+      // Focus the input after submission
+      setTimeout(() => {
+        const inputElement = document.querySelector('.rce-input-textarea');
+        if (inputElement) {
+          inputElement.focus();
+        }
+      }, 0);
     };
 
     const handleNewChat = () => {
@@ -1156,13 +1154,6 @@ function App() {
   // Add a new state to track edit mode for system prompts
   const [editingPrompts, setEditingPrompts] = useState({});
 
-  // Add this effect to handle chat history scrolling
-  useEffect(() => {
-    if (chatHistoryRef.current && mode === 'chat') {
-      chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
-    }
-  }, [chatHistory, mode]);
-
   // Add this helper function to determine how many page numbers to show
   const getVisiblePageNumbers = () => {
     if (window.innerWidth <= 768) {
@@ -1206,6 +1197,29 @@ function App() {
       text: ''
     });
   };
+
+  // Add this useEffect to handle centering of messages
+  useEffect(() => {
+    if (chatHistory.length > 0) {
+      setTimeout(() => {
+        const messageList = document.querySelector('.rce-container-mlist');
+        const messages = messageList.querySelectorAll('.rce-mbox');
+        const lastMessage = messages[messages.length - 1];
+        
+        if (lastMessage) {
+          const containerHeight = messageList.clientHeight;
+          const messageTop = lastMessage.offsetTop;
+          const messageHeight = lastMessage.offsetHeight;
+          const centerPosition = messageTop - (containerHeight / 2) + (messageHeight / 2);
+          
+          messageList.scrollTo({
+            top: centerPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
+  }, [chatHistory]);
 
   return (
     <div className={`veyr-container ${showMenu ? 'menu-open' : ''}`} data-mode={mode}>
@@ -1346,8 +1360,11 @@ function App() {
               <div className="chat-container">
                 <MessageList
                   className='message-list'
-                  lockable={true}
+                  lockable={false}
                   toBottomHeight={'100%'}
+                  downButton={true}
+                  downButtonBadge={true}
+                  scrollBehavior="smooth"
                   dataSource={chatHistory.map((message, index) => ({
                     position: message.sender === 'user' ? 'left' : 'right',
                     type: 'text',
@@ -1387,18 +1404,20 @@ function App() {
                   <Input
                     key={chatHistory.length}
                     placeholder={
-                      isOrchestratorMode
-                        ? 'Start chatting and let the orchestrator decide which chatbots to use for you...'
-                        : pinnedBots.length > 0
-                          ? pinnedBots.length <= 3
-                            ? `Chat with ${pinnedBots.map(bot => bot.name).join(', ')}`
-                            : (() => {
-                                const randomBots = [...pinnedBots]
-                                  .sort(() => 0.5 - Math.random())
-                                  .slice(0, 3);
-                                return `Chat with ${randomBots.map(bot => bot.name).join(', ')} & ${pinnedBots.length - 3} other chatbots`;
-                              })()
-                          : 'Please pick your chatbot(s) on the search page'
+                      chatHistory.length > 0
+                        ? "Submit your message to the orchestrator here..."  // Updated placeholder text
+                        : isOrchestratorMode
+                          ? 'Start chatting and let the orchestrator decide which chatbots to use for you...'
+                          : pinnedBots.length > 0
+                            ? pinnedBots.length <= 3
+                              ? `Chat with ${pinnedBots.map(bot => bot.name).join(', ')}`
+                              : (() => {
+                                  const randomBots = [...pinnedBots]
+                                    .sort(() => 0.5 - Math.random())
+                                    .slice(0, 3);
+                                  return `Chat with ${randomBots.map(bot => bot.name).join(', ')} & ${pinnedBots.length - 3} other chatbots`;
+                                })()
+                            : 'Please pick your chatbot(s) on the search page'
                     }
                     multiline={true}
                     value={searchText}
