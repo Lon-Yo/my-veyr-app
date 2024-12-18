@@ -15,20 +15,27 @@
 
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
   min-height: 40px;
+  padding: 10px 0;
+  position: relative;
 }
 
 .header-content {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  align-items: center;
+  width: 100%;
+  padding: 0 44px;
 }
 
 .title-row {
   display: flex;
   align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 .title-row h1 {
@@ -54,7 +61,7 @@
   display: flex;
   gap: 15px;
   justify-content: center;
-  margin-top: 10px;
+  width: 100%;
 }
 
 .mode-toggle button {
@@ -87,12 +94,6 @@
 
 .mode-toggle button:only-child {
   margin: 0 auto;
-}
-
-.search-chat-area {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 20px;
 }
 
 .input-mode-container {
@@ -1796,14 +1797,15 @@
 }
 
 .chat-mode-toggle {
-  margin-bottom: 20px;
-  padding: 10px;
-  background: #f8f8f8;
-  border-radius: 8px;
+  margin-top: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  width: 100%;
+  padding: 10px;
+  background: #f8f8f8;
+  border-radius: 8px;
 }
 
 .chat-mode-toggle span {
@@ -1815,6 +1817,19 @@
 .chat-mode-toggle span.active {
   color: #000;
   font-weight: 600;
+}
+
+/* Center the clear chat button without affecting the slider centering */
+.chat-mode-toggle .clear-chat {
+  position: absolute;
+  right: 10px;
+}
+
+/* Ensure the switch and text are centered as a group */
+.chat-mode-toggle > span:first-child,
+.chat-mode-toggle > .switch,
+.chat-mode-toggle > span:last-of-type {
+  flex-shrink: 0; /* Prevent text from wrapping */
 }
 
 /* The switch - the box around the slider */
@@ -1985,7 +2000,7 @@ input:checked + .slider:before {
 
 /* Maintain the existing styles for the mode toggle and footer */
 .chat-mode-toggle {
-  margin-bottom: 20px;
+  margin-top: 0;
 }
 
 .chat-controls {

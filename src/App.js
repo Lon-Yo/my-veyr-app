@@ -1261,25 +1261,21 @@ function App() {
               <span className="header-subtitle">- The Intralox Chatbot Aggregator</span>
             </div>
             <div className="mode-toggle">
-              {mode === 'search' && (
-                <>
-                  <button
-                    className={mode === 'search' ? 'active' : ''}
-                    onClick={() => setMode('search')}
-                  >
-                    <FaSearch size={24} />
-                  </button>
-                  <button
-                    className={mode === 'chat' ? 'active' : ''}
-                    onClick={() => {
-                      setMode('chat');
-                      setSearchText('');
-                    }}
-                  >
-                    <FaComment size={24} />
-                  </button>
-                </>
-              )}
+              <button
+                className={mode === 'search' ? 'active' : ''}
+                onClick={() => setMode('search')}
+              >
+                <FaSearch size={24} />
+              </button>
+              <button
+                className={mode === 'chat' ? 'active' : ''}
+                onClick={() => {
+                  setMode('chat');
+                  setSearchText('');
+                }}
+              >
+                <FaComment size={24} />
+              </button>
             </div>
           </div>
         </div>
