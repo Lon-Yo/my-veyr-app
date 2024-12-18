@@ -1646,17 +1646,17 @@ function App() {
 
               {openSection === 'stats' && (
                 <div className="stats-section">
-                  <h3>Statistics for Pinned Chatbots</h3>
+                  <h3>Statistics for {pinnedBots.length > 0 ? 'Pinned' : 'All'} Chatbots</h3>
                   <div className="stats-grid">
                     <div className="stat-item">
                       <FaThumbtack className="status-icon" style={{ transform: 'rotate(45deg)' }} />
-                      <h4>Pinned Chatbots</h4>
-                      <p>{pinnedBots.length}</p>
+                      <h4>{pinnedBots.length > 0 ? 'Pinned Chatbots' : 'Total Chatbots'}</h4>
+                      <p>{pinnedBots.length > 0 ? pinnedBots.length : allBots.length}</p>
                     </div>
                     <div className="stat-item">
                       <FaComment className="status-icon" />
                       <h4>Total Chats</h4>
-                      <p>{pinnedBots.reduce((sum, bot) => {
+                      <p>{(pinnedBots.length > 0 ? pinnedBots : allBots).reduce((sum, bot) => {
                         const metrics = botMetrics[bot.id];
                         return sum + metrics.chats;
                       }, 0).toLocaleString()}</p>
@@ -1664,7 +1664,7 @@ function App() {
                     <div className="stat-item">
                       <FaSearch className="status-icon" />
                       <h4>Total Queries</h4>
-                      <p>{pinnedBots.reduce((sum, bot) => {
+                      <p>{(pinnedBots.length > 0 ? pinnedBots : allBots).reduce((sum, bot) => {
                         const metrics = botMetrics[bot.id];
                         return sum + metrics.queries;
                       }, 0).toLocaleString()}</p>
@@ -1672,7 +1672,7 @@ function App() {
                     <div className="stat-item">
                       <FaCheckCircle className="status-icon success" />
                       <h4>Files Processed</h4>
-                      <p>{pinnedBots.reduce((sum, bot) => {
+                      <p>{(pinnedBots.length > 0 ? pinnedBots : allBots).reduce((sum, bot) => {
                         const stats = getStatsForBot(bot.id);
                         return sum + stats.success;
                       }, 0)}</p>
@@ -1680,7 +1680,7 @@ function App() {
                     <div className="stat-item">
                       <FaCheckCircle className="status-icon pending" />
                       <h4>Files Processing</h4>
-                      <p>{pinnedBots.reduce((sum, bot) => {
+                      <p>{(pinnedBots.length > 0 ? pinnedBots : allBots).reduce((sum, bot) => {
                         const stats = getStatsForBot(bot.id);
                         return sum + stats.pending;
                       }, 0)}</p>
@@ -1688,7 +1688,7 @@ function App() {
                     <div className="stat-item">
                       <FaTimesCircle className="status-icon failed" />
                       <h4>Files Failed</h4>
-                      <p>{pinnedBots.reduce((sum, bot) => {
+                      <p>{(pinnedBots.length > 0 ? pinnedBots : allBots).reduce((sum, bot) => {
                         const stats = getStatsForBot(bot.id);
                         return sum + stats.failed;
                       }, 0)}</p>
