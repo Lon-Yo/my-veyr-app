@@ -1206,7 +1206,7 @@ function App() {
   };
 
   return (
-    <div className="veyr-container" data-mode={mode}>
+    <div className={`veyr-container ${showMenu ? 'menu-open' : ''}`} data-mode={mode}>
         <input 
           type="file" 
           id="file-upload" 

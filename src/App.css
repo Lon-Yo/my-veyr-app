@@ -920,38 +920,64 @@
 /* Menu Overlay */
 .menu-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 998;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
+  inset: 0;  /* Shorthand for top/right/bottom/left: 0 */
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
 }
 
-.menu-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* Sliding Menu */
 .menu-content {
   position: fixed;
   top: 0;
-  left: -300px;
-  width: 300px;
+  left: 0;
+  width: 250px;
   height: 100%;
-  background-color: white;
-  z-index: 999;
+  background: white;
+  z-index: 1001;
   padding: 20px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  transition: left 0.3s ease;
 }
 
-.menu-content.active {
-  left: 0;
+.menu-close {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.menu-content button {
+  width: 100%;
+  text-align: left;
+  padding: 12px 0;
+  border: none;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Remove the position: fixed from the container */
+.veyr-container.menu-open {
+  overflow: hidden;
+}
+
+/* Add styles to prevent content shift */
+.menu-close {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Prevent background scrolling when menu is open */
+.veyr-container.menu-open {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .menu-content button {
@@ -2225,14 +2251,15 @@ input:checked + .slider:before {
 /* Add/update mobile styles for search input */
 @media screen and (max-width: 768px) {
   .search-chat-area {
-    position: fixed;
-    bottom: 90px; /* Space for pagination + footer */
+    position: sticky;
+    top: 0;  /* Changed from bottom to top */
     left: 0;
     right: 0;
     background: white;
     padding: 10px;
     z-index: 99;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);  /* Changed shadow direction */
+    margin-bottom: 15px;  /* Add space below search */
   }
 
   .input-mode-container {
@@ -2245,13 +2272,66 @@ input:checked + .slider:before {
     padding-right: 40px !important;
   }
 
-  /* Adjust content padding to prevent overlap */
+  /* Adjust content padding */
   .search-content {
-    padding-bottom: 150px; /* Increased to accommodate fixed search input */
+    padding-top: 10px;
+    padding-bottom: 100px; /* Space for pagination and footer */
   }
 
-  /* Adjust pagination position */
+  /* Keep pagination at bottom */
   .mobile-pagination {
-    bottom: 45px; /* Position above footer but below search */
+    bottom: 45px;
+  }
+}
+
+/* Update mobile styles for chat interface */
+@media screen and (max-width: 768px) {
+  .chat-input-container {
+    position: fixed;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 10px 15px;
+    border-top: 1px solid #eee;
+    z-index: 101;
+  }
+
+  .intralox-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #f5f5f5;
+    padding: 10px 0;
+    z-index: 100;
+  }
+
+  .content-area {
+    padding-bottom: 120px;
+  }
+
+  .search-content {
+    padding-top: 10px;
+    padding-bottom: 120px;
+  }
+
+  .mobile-pagination {
+    position: fixed;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 10px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    z-index: 99;
+  }
+
+  .message-list {
+    padding-bottom: 120px;
+  }
+
+  .veyr-container.menu-open {
+    overflow: hidden;
   }
 }
