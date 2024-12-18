@@ -1385,6 +1385,7 @@ function App() {
                 
                 <div className="chat-input-container">
                   <Input
+                    key={chatHistory.length}
                     placeholder={
                       isOrchestratorMode
                         ? 'Start chatting and let the orchestrator decide which chatbots to use for you...'
