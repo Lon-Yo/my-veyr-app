@@ -1483,18 +1483,20 @@ function App() {
               </div>
 
               <div className="saved-searches-section">
-                <button 
-                  className="saved-searches-link" 
-                  onClick={toggleSavedSearchesList}
-                >
-                  {showSavedSearchesList ? 'Close Saved Searches' : 'Saved Searches'}
-                </button>
-                <button
-                  className="sort-toggle-button"
-                  onClick={handleSortToggle}
-                >
-                  Sort by: {sortMode === 'alpha' ? 'A-Z' : 'Rank'}
-                </button>
+                <div className="search-controls">
+                  <button 
+                    className="saved-searches-link" 
+                    onClick={toggleSavedSearchesList}
+                  >
+                    {showSavedSearchesList ? 'Close Saved Searches' : 'Saved Searches'}
+                  </button>
+                  <button
+                    className="sort-toggle-button"
+                    onClick={handleSortToggle}
+                  >
+                    Sort by: {sortMode === 'alpha' ? 'A-Z' : 'Rank'}
+                  </button>
+                </div>
                 {showSavedSearchesList && (
                   <div className="saved-searches-list">
                     {savedSearches.map((search, index) => (
