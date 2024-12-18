@@ -1603,6 +1603,7 @@
 
   .mode-toggle {
     margin-top: 5px;
+    transform: translate(-30px, 5px); /* Move left 30px and down 5px */
   }
 
   .title-row {
