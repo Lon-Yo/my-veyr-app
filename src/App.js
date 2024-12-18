@@ -1304,7 +1304,7 @@ function App() {
               <textarea
                 ref={searchInputRef}
                 className="search-chat-input"
-                placeholder="Search for chatbots..."
+                placeholder="Search for chatbot(s), pin to chat..."
                 value={searchText}
                 onChange={handleSearchTextChange}
               />
@@ -1430,9 +1430,20 @@ function App() {
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleChatSubmit();
+                      // Check if it's a touch device
+                      const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                      
+                      if (e.key === 'Enter') {
+                        // For mobile, submit on Enter without checking for shift
+                        if (isMobile) {
+                          e.preventDefault();
+                          handleChatSubmit();
+                        } 
+                        // For desktop, only submit if shift is not pressed
+                        else if (!e.shiftKey) {
+                          e.preventDefault();
+                          handleChatSubmit();
+                        }
                       }
                     }}
                     rightButtons={
