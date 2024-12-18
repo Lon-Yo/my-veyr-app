@@ -1922,14 +1922,14 @@ input:checked + .slider:before {
 }
 
 .rce-mbox-left {
-  background: #f0f0f0 !important;  /* Lighter gray for bot messages */
+  background: #f0f0f0 !important;
   color: #000 !important;
   border: 1px solid #e0e0e0 !important;
 }
 
 .rce-mbox-right {
-  background: #ddd !important;  /* Match the gray used in the UI */
-  color: #000 !important;  /* Change text to black for better contrast */
+  background: #ddd !important;
+  color: #000 !important;
 }
 
 .rce-input {
@@ -2149,4 +2149,48 @@ input:checked + .slider:before {
   position: relative;
   padding-bottom: 5px;
   min-width: 150px; /* Ensure enough space for feedback icons */
+}
+
+/* Mobile-specific layout adjustments */
+@media screen and (max-width: 768px) {
+  .chat-content {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 0;
+  }
+
+  .chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Important for scroll behavior */
+  }
+
+  .message-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
+  }
+
+  /* Fix input area to bottom */
+  .chat-input-container {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding: 10px;
+    border-top: 1px solid #eee;
+    margin-bottom: 40px; /* Space for footer */
+  }
+
+  /* Fix footer */
+  .intralox-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #f5f5f5;
+    padding: 10px 0;
+    z-index: 100;
+  }
 }
