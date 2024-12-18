@@ -1272,6 +1272,10 @@ function App() {
                 onClick={() => {
                   setMode('chat');
                   setSearchText('');
+                  // If there are pinned bots, set to "Pick chatbot(s)" mode
+                  if (pinnedBots.length > 0) {
+                    setIsOrchestratorMode(false);
+                  }
                 }}
               >
                 <FaComment size={24} />
