@@ -1335,7 +1335,7 @@ function App() {
           {mode === 'chat' ? (
             <div className="chat-content">
               <div className="chat-mode-toggle">
-                <span className={!isOrchestratorMode ? 'active' : ''}>Pick Chatbots</span>
+                <span className={!isOrchestratorMode ? 'active' : ''}>Pick chatbot(s)</span>
                 <label className="switch">
                   <input
                     type="checkbox"
@@ -1543,7 +1543,7 @@ function App() {
                   <ul>
                     <li>"support" → Finds any bot with "support" in name or tags</li>
                     <li>"technical support" → Finds bots with both words</li>
-                    <li>"hr policy OR sales" �� Finds bots with either both "hr" and "policy", or "sales"</li>
+                    <li>"hr policy OR sales"  Finds bots with either both "hr" and "policy", or "sales"</li>
                     <li>"customer service OR technical support OR helpdesk" → Finds bots matching any of these combinations</li>
                   </ul>
                 </div>
