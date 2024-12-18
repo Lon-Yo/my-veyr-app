@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/my-veyr-app/static/css/main.2bc90f1e.css",
-    "main.js": "/my-veyr-app/static/js/main.6947165d.js",
+    "main.css": "/my-veyr-app/static/css/main.6e2e1a59.css",
+    "main.js": "/my-veyr-app/static/js/main.5ece89cf.js",
     "static/js/146.627ce322.chunk.js": "/my-veyr-app/static/js/146.627ce322.chunk.js",
     "index.html": "/my-veyr-app/index.html",
-    "main.2bc90f1e.css.map": "/my-veyr-app/static/css/main.2bc90f1e.css.map",
-    "main.6947165d.js.map": "/my-veyr-app/static/js/main.6947165d.js.map",
+    "main.6e2e1a59.css.map": "/my-veyr-app/static/css/main.6e2e1a59.css.map",
+    "main.5ece89cf.js.map": "/my-veyr-app/static/js/main.5ece89cf.js.map",
     "146.627ce322.chunk.js.map": "/my-veyr-app/static/js/146.627ce322.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.2bc90f1e.css",
-    "static/js/main.6947165d.js"
+    "static/css/main.6e2e1a59.css",
+    "static/js/main.5ece89cf.js"
   ]
 }
