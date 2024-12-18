@@ -771,22 +771,58 @@ function App() {
   };
 
   const addBot = () => {
-    const newBotName = prompt('Enter new bot name:');
-    if (newBotName) {
-      const newBot = {
-        id: allBots.length + 1,
-        name: newBotName,
-        tags: [],
-        links: [],
-        systemPrompt: '',
-      };
-      const updatedBots = [newBot, ...allBots];
-      setAllBots(updatedBots);
-      if (!showPinnedOnly) {
-        setFilteredBots(prev => [newBot, ...prev]);
+    const dialog = document.createElement('div');
+    dialog.className = 'feedback-dialog-overlay';
+    dialog.innerHTML = `
+      <div class="feedback-dialog">
+        <h3>Add New Bot</h3>
+        <input 
+          type="text" 
+          id="new-bot-input" 
+          placeholder="Enter bot name..."
+          class="feedback-dialog-input"
+          style="width: calc(100% - 24px); padding: 12px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 15px; font-family: inherit; font-size: 14px;"
+        />
+        <div class="feedback-dialog-buttons">
+          <button class="cancel-button">Cancel</button>
+          <button class="add-button">Add Bot</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(dialog);
+
+    const input = dialog.querySelector('#new-bot-input');
+    input.focus();
+
+    const handleAdd = () => {
+      const newBotName = input.value.trim();
+      if (newBotName) {
+        const newBot = {
+          id: allBots.length + 1,
+          name: newBotName,
+          tags: [],
+          links: [],
+          systemPrompt: '',
+        };
+        const updatedBots = [newBot, ...allBots];
+        setAllBots(updatedBots);
+        if (!showPinnedOnly) {
+          setFilteredBots(prev => [newBot, ...prev]);
+        }
+        setCurrentPage(1);
       }
-      setCurrentPage(1);
-    }
+      document.body.removeChild(dialog);
+    };
+
+    dialog.querySelector('.add-button').addEventListener('click', handleAdd);
+    dialog.querySelector('.cancel-button').addEventListener('click', () => {
+      document.body.removeChild(dialog);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleAdd();
+      if (e.key === 'Escape') document.body.removeChild(dialog);
+    });
   };
 
   const saveCurrentSearch = () => {
