@@ -323,19 +323,17 @@
   cursor: pointer;
   background: #f8f8f8;
   border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
-.saved-search:hover {
-  background-color: #eee;
-}
-
-.saved-search:last-child {
-  border-bottom: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  color: #000;
 }
 
 .saved-search:hover {
   background-color: #333;
+  color: #fff;
+}
+
+.saved-search:last-child {
+  border-bottom: none;
 }
 
 /* Chat History */
