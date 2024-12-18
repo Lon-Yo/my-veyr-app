@@ -1416,7 +1416,7 @@ function App() {
                     key={chatHistory.length}
                     placeholder={
                       chatHistory.length > 0
-                        ? "Submit your message to the orchestrator here..."  // Updated placeholder text
+                        ? "Submit your message to the orchestrator here..."
                         : isOrchestratorMode
                           ? 'Start chatting and let the orchestrator decide which chatbots to use for you...'
                           : pinnedBots.length > 0

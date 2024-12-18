@@ -2433,3 +2433,81 @@ input:checked + .slider:before {
 .secondary-controls button:hover {
   opacity: 0.8;
 }
+
+.messages-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message {
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin: 5px 0;
+}
+
+.user-message {
+  align-self: flex-start;
+  background-color: #f0f0f0;
+}
+
+.bot-message {
+  align-self: flex-end;
+  background-color: #007bff;
+  color: white;
+}
+
+.chat-input-container {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  background: #fff;
+  border-top: 1px solid #eee;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  resize: none;
+  min-height: 40px;
+  max-height: 120px;
+}
+
+.chat-submit-button {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.chat-submit-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.message-feedback {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.feedback-button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px;
+  opacity: 0.7;
+}
+
+.feedback-button:hover {
+  opacity: 1;
+}
