@@ -1304,6 +1304,64 @@ function App() {
     };
   }, []); // Empty dependency array since we're using ref
 
+  // Add this useRef near your other refs
+  const savedSearchesContainerRef = useRef(null);
+
+  // Add this useEffect to handle clicks outside saved searches
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openSection === 'saved' && 
+          savedSearchesContainerRef.current && 
+          !savedSearchesContainerRef.current.contains(event.target) &&
+          !event.target.closest('.secondary-controls')) {
+        setOpenSection(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openSection]);
+
+  // Add this with your other refs
+  const statsContainerRef = useRef(null);
+  const helpContainerRef = useRef(null);
+
+  // Update the useEffect for handling clicks outside sections
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if clicking outside saved searches
+      if (openSection === 'saved' && 
+          savedSearchesContainerRef.current && 
+          !savedSearchesContainerRef.current.contains(event.target) &&
+          !event.target.closest('.secondary-controls')) {
+        setOpenSection(null);
+      }
+      
+      // Check if clicking outside stats
+      if (openSection === 'stats' && 
+          statsContainerRef.current && 
+          !statsContainerRef.current.contains(event.target) &&
+          !event.target.closest('button')) {
+        setOpenSection(null);
+      }
+      
+      // Check if clicking outside help
+      if (openSection === 'help' && 
+          helpContainerRef.current && 
+          !helpContainerRef.current.contains(event.target) &&
+          !event.target.closest('button')) {
+        setOpenSection(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openSection]);
+
   return (
     <div className={`veyr-container ${showMenu ? 'menu-open' : ''}`} data-mode={mode}>
         <input 
@@ -1589,7 +1647,7 @@ function App() {
               </div>
 
               {openSection === 'saved' && (
-                <div className="help-section">
+                <div className="help-section" ref={savedSearchesContainerRef}>
                   <h3>Saved Searches</h3>
                   <div className="saved-searches-content">
                     {savedSearches.map((search, index) => (
@@ -1606,7 +1664,7 @@ function App() {
               )}
 
               {openSection === 'help' && (
-                <div className="help-section">
+                <div className="help-section" ref={helpContainerRef}>
                   <h3>Help</h3>
                   <p>Welcome to VeyR - The Intralox Chatbot Aggregator</p>
                   
@@ -1645,7 +1703,7 @@ function App() {
               )}
 
               {openSection === 'stats' && (
-                <div className="stats-section">
+                <div className="stats-section" ref={statsContainerRef}>
                   <h3>Statistics for {pinnedBots.length > 0 ? 'Pinned' : 'All'} Chatbots</h3>
                   <div className="stats-grid">
                     <div className="stat-item">
