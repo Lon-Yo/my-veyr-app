@@ -1800,12 +1800,14 @@
   margin-top: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
   width: 100%;
   padding: 10px;
+  padding-left: 15px;
   background: #f8f8f8;
   border-radius: 8px;
+  position: relative;
 }
 
 .chat-mode-toggle span {
@@ -1825,19 +1827,14 @@
   right: 10px;
 }
 
-/* Ensure the switch and text are centered as a group */
-.chat-mode-toggle > span:first-child,
-.chat-mode-toggle > .switch,
-.chat-mode-toggle > span:last-of-type {
-  flex-shrink: 0; /* Prevent text from wrapping */
-}
-
+/* Remove the centering group styles since we want left alignment */
 /* The switch - the box around the slider */
 .switch {
   position: relative;
   display: inline-block;
   width: 60px;
   height: 34px;
+  flex-shrink: 0;
 }
 
 /* Hide default HTML checkbox */
