@@ -992,16 +992,18 @@ function App() {
       if (url) {
         const newLink = {
           url,
+          version: '1.0',
+          lastUpdated: new Date().toLocaleDateString(),
           status: 'pending',
           description: url.split('/').pop() || 'SharePoint Site'
         };
         const updatedBots = allBots.map((bot) =>
-          bot.id === botId ? { ...bot, links: [newLink] } : bot
+          bot.id === botId ? { ...bot, links: [...bot.links, newLink] } : bot
         );
         setAllBots(updatedBots);
         setFilteredBots(prevFiltered => 
           prevFiltered.map(bot => 
-            bot.id === botId ? { ...bot, links: [newLink] } : bot
+            bot.id === botId ? { ...bot, links: [...bot.links, newLink] } : bot
           )
         );
       }
@@ -1679,12 +1681,20 @@ function App() {
                     {expandedBots[bot.id] && (
                       <div className="bot-expanded-content">
                         <div className="bot-links">
-                          <button className="add-sharepoint-link" onClick={() => handleAddSharePointLink(bot.id)}>
-                            <FaLink /> SharePoint Site
-                            {bot.links[0] && (
-                              <span className="current-url">({bot.links[0].url})</span>
-                            )}
-                          </button>
+                          <div className="sharepoint-links-container">
+                            <button className="add-sharepoint-link" onClick={() => handleAddSharePointLink(bot.id)}>
+                              <FaLink /> SharePoint Site
+                              {bot.links[0] && (
+                                <span className="current-url">({bot.links[0].url})</span>
+                              )}
+                            </button>
+                            <div 
+                              className="add-new-sharepoint-link" 
+                              onClick={() => handleAddSharePointLink(bot.id)}
+                            >
+                              <FaPlus /> Add Additional SharePoint Site
+                            </div>
+                          </div>
                           <LinkStatusDashboard links={bot.links} botId={bot.id} />
                         </div>
                         <div className="bot-system-prompt">
