@@ -1224,10 +1224,10 @@
 
 /* Add subtle bounce animation to indicate scrollability */
 @keyframes scrollHint {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-20px); }
-  75% { transform: translateX(0); }
-  100% { transform: translateX(0); }
+  0% { transform: translateY(0); }
+  2% { transform: translateY(-8px); }
+  4% { transform: translateY(0); }
+  100% { transform: translateY(0); }
 }
 
 /* Show animation only when controls overflow and pins exist */
@@ -1619,10 +1619,10 @@
 
 /* Bounce animation for scroll hint */
 @keyframes scrollHint {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-20px); }
-  75% { transform: translateX(0); }
-  100% { transform: translateX(0); }
+  0% { transform: translateY(0); }
+  2% { transform: translateY(-8px); }
+  4% { transform: translateY(0); }
+  100% { transform: translateY(0); }
 }
 
 /* Mobile specific adjustments */
@@ -2354,4 +2354,42 @@ input:checked + .slider:before {
     width: 16px !important;
     height: 16px !important;
   }
+}
+
+@keyframes scrollHint {
+  0% { transform: translateY(0); }
+  2% { transform: translateY(-8px); }
+  4% { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+.saved-searches-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #000;
+  border: 1px solid #000;
+  border-radius: 4px;
+  margin-top: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  color: #fff;
+}
+
+/* Add scroll hint animation when content overflows */
+.saved-searches-list::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.saved-searches-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Apply animation when content overflows */
+.saved-searches-list[data-overflow="true"] {
+  animation: scrollHint 6s ease-in-out infinite;
 }

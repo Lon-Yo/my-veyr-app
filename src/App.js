@@ -307,6 +307,7 @@ function App() {
   const searchInputRef = useRef(null);
   const chatHistoryRef = useRef(null);
   const messageListRef = useRef(null);
+  const savedSearchesRef = useRef(null);
 
   const [mode, setMode] = useState('chat');
   const [searchText, setSearchText] = useState('');
@@ -1221,6 +1222,24 @@ function App() {
     }
   }, [chatHistory]);
 
+  // Add this useEffect after other useEffects
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (savedSearchesRef.current && !savedSearchesRef.current.contains(event.target) && 
+          !event.target.closest('.saved-searches-link')) {
+        setShowSavedSearchesList(false);
+      }
+    };
+
+    if (showSavedSearchesList) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSavedSearchesList]);
+
   return (
     <div className={`veyr-container ${showMenu ? 'menu-open' : ''}`} data-mode={mode}>
         <input 
@@ -1498,7 +1517,11 @@ function App() {
                   </button>
                 </div>
                 {showSavedSearchesList && (
-                  <div className="saved-searches-list">
+                  <div 
+                    className="saved-searches-list"
+                    ref={savedSearchesRef}
+                    data-overflow={savedSearches.length > 6 ? "true" : "false"}
+                  >
                     {savedSearches.map((search, index) => (
                       <div
                         key={index}
