@@ -1243,84 +1243,6 @@ function App() {
             </>
         )}
 
-        <div className="search-chat-area">
-            <div className="input-mode-container">
-                <textarea
-                    ref={searchInputRef}
-                    className="search-chat-input"
-                    placeholder={
-                      mode === 'search'
-                        ? 'Search for chatbots...'
-                        : isOrchestratorMode
-                          ? 'Start chatting and let the orchestrator decide which chatbots to use for you...'
-                          : pinnedBots.length > 0
-                            ? pinnedBots.length <= 3
-                              ? `Chat with ${pinnedBots.map(bot => bot.name).join(', ')}`
-                              : (() => {
-                                  const randomBots = [...pinnedBots]
-                                    .sort(() => 0.5 - Math.random())
-                                    .slice(0, 3);
-                                  return `Chat with ${randomBots.map(bot => bot.name).join(', ')} & ${pinnedBots.length - 3} other chatbots`;
-                                })()
-                            : 'Please pick your chatbot(s) on the search page'
-                    }
-                    value={searchText}
-                    onChange={handleSearchTextChange}
-                    onKeyDown={(e) => {
-                      if (mode === 'chat' && e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleChatSubmit();
-                      }
-                    }}
-                />
-                {mode === 'chat' && !isOrchestratorMode && (
-                    <button 
-                      className={`chat-submit-button ${pinnedBots.length === 0 ? 'disabled' : ''}`}
-                      onClick={handleChatSubmit}
-                      disabled={pinnedBots.length === 0}
-                    >
-                      <FaArrowUp />
-                    </button>
-                )}
-                {mode === 'chat' && isOrchestratorMode && (
-                    <button 
-                      className="chat-submit-button"
-                      onClick={handleChatSubmit}
-                    >
-                      <FaArrowUp />
-                    </button>
-                )}
-
-                {searchText && (
-                    <button 
-                        className="clear-text-button"
-                        onClick={() => {
-                            setSearchText('');
-                            if (searchInputRef.current) {
-                                searchInputRef.current.focus();
-                            }
-                        }}
-                    >
-                        <FaTimes />
-                    </button>
-                )}
-
-                {mode === 'search' && (
-                    <div className="search-suggestions">
-                    {searchSuggestions.map((suggestion, index) => (
-                        <div
-                        key={index}
-                        className="suggestion"
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        >
-                        {suggestion}
-                        </div>
-                    ))}
-                    </div>
-                )}
-            </div>
-        </div>
-
         <div className="content-area">
           {mode === 'chat' ? (
             <div className="chat-content">
@@ -1332,9 +1254,7 @@ function App() {
                     checked={isOrchestratorMode}
                     onChange={() => {
                       setIsOrchestratorMode(!isOrchestratorMode);
-                      // If turning off orchestrator mode (switching to manual)
                       if (isOrchestratorMode) {
-                        // Wait for slider animation (0.4s) plus 0.2s
                         setTimeout(() => {
                           setMode('search');
                         }, 600);
@@ -1344,6 +1264,11 @@ function App() {
                   <span className="slider round"></span>
                 </label>
                 <span className={isOrchestratorMode ? 'active' : ''}>Orchestrator</span>
+                {chatHistory.length > 0 && (
+                  <button className="clear-chat" onClick={() => setChatHistory([])}>
+                    Clear Chat
+                  </button>
+                )}
               </div>
 
               <div className="chat-container">
@@ -1364,14 +1289,27 @@ function App() {
                   <Input
                     placeholder={
                       isOrchestratorMode
-                        ? "Ask any question..."
+                        ? 'Start chatting and let the orchestrator decide which chatbots to use for you...'
                         : pinnedBots.length > 0
-                          ? "Chat with selected bots..."
-                          : "Please select chatbots first"
+                          ? pinnedBots.length <= 3
+                            ? `Chat with ${pinnedBots.map(bot => bot.name).join(', ')}`
+                            : (() => {
+                                const randomBots = [...pinnedBots]
+                                  .sort(() => 0.5 - Math.random())
+                                  .slice(0, 3);
+                                return `Chat with ${randomBots.map(bot => bot.name).join(', ')} & ${pinnedBots.length - 3} other chatbots`;
+                              })()
+                          : 'Please pick your chatbot(s) on the search page'
                     }
                     multiline={true}
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleChatSubmit();
+                      }
+                    }}
                     rightButtons={
                       <button 
                         className={`chat-submit-button ${(!isOrchestratorMode && pinnedBots.length === 0) ? 'disabled' : ''}`}
@@ -1384,14 +1322,6 @@ function App() {
                   />
                 </div>
               </div>
-
-              {chatHistory.length > 0 && (
-                <div className="chat-controls">
-                  <button className="clear-chat" onClick={() => setChatHistory([])}>
-                    Clear Chat
-                  </button>
-                </div>
-              )}
             </div>
           ) : (
             // Search Mode Content
@@ -1625,12 +1555,10 @@ function App() {
                                 e.preventDefault();
                                 const textarea = e.target.closest('.bot-system-prompt').querySelector('textarea');
                                 if (!editingPrompts[bot.id]) {
-                                  // Entering edit mode
                                   textarea.readOnly = false;
                                   textarea.focus();
                                   setEditingPrompts(prev => ({ ...prev, [bot.id]: true }));
                                 } else {
-                                  // Saving changes
                                   textarea.readOnly = true;
                                   setEditingPrompts(prev => ({ ...prev, [bot.id]: false }));
                                   handleSystemPromptEdit(bot.id, textarea.value);
