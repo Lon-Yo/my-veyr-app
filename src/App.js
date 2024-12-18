@@ -1630,9 +1630,9 @@ function App() {
                   filteredBots.slice(indexOfFirstBot, indexOfLastBot) : 
                   currentBots
                 ).map((bot) => (
-                  <div
+                  <div 
+                    className={`bot-card ${expandedBots[bot.id] ? 'expanded' : ''}`}
                     key={bot.id}
-                    className="bot-card"
                     onContextMenu={(e) => handleContextMenu(e, 'bot', bot.id)}
                   >
                     <div className="bot-header">
