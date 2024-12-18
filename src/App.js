@@ -1309,7 +1309,7 @@ function App() {
                   lockable={true}
                   toBottomHeight={'100%'}
                   dataSource={chatHistory.map((message, index) => ({
-                    position: message.sender === 'user' ? 'right' : 'left',
+                    position: message.sender === 'user' ? 'left' : 'right',
                     type: 'text',
                     text: (
                       <div className="message-content">

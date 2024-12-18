@@ -1979,11 +1979,11 @@ input:checked + .slider:before {
 
 .message-feedback {
   position: absolute;
-  right: 8px;  /* Keep aligned to the right */
-  bottom: -35px;  /* Move below the bubble */
+  left: 8px;  /* Changed from right to left */
+  bottom: -35px;
   display: flex;
   gap: 12px;
-  opacity: 1; /* Full opacity by default */
+  opacity: 1;
   transition: opacity 0.2s ease;
   z-index: 1;
   background: transparent;
@@ -2025,7 +2025,7 @@ input:checked + .slider:before {
 }
 
 /* Ensure proper spacing between messages */
-.rce-container-mlist .rce-mbox-left {
+.rce-container-mlist .rce-mbox-right {
   margin-bottom: 40px !important;
 }
 
@@ -2124,4 +2124,29 @@ input:checked + .slider:before {
 .rce-container-mlist .rce-mbox {
   animation-duration: 0.5s !important;
   animation-timing-function: ease-out !important;
+}
+
+/* Update feedback positioning */
+.message-feedback {
+  position: absolute;
+  left: 8px;  /* Changed from right to left */
+  bottom: -35px;
+  display: flex;
+  gap: 12px;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+  background: transparent;
+}
+
+/* Ensure proper spacing between messages */
+.rce-container-mlist .rce-mbox-right { /* Changed from rce-mbox-left */
+  margin-bottom: 40px !important;
+}
+
+/* Optional: Adjust the feedback icons container width to ensure it doesn't overlap with messages */
+.message-content {
+  position: relative;
+  padding-bottom: 5px;
+  min-width: 150px; /* Ensure enough space for feedback icons */
 }
