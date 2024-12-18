@@ -1965,3 +1965,64 @@ input:checked + .slider:before {
 .clear-chat:hover {
   background-color: #fff5f5;
 }
+
+/* Message feedback styling */
+.message-content {
+  position: relative;
+}
+
+.message-feedback {
+  position: absolute;
+  right: 8px;  /* Keep aligned to the right */
+  bottom: -35px;  /* Move below the bubble */
+  display: flex;
+  gap: 12px;
+  opacity: 1; /* Full opacity by default */
+  transition: opacity 0.2s ease;
+  z-index: 1;
+  background: transparent;
+}
+
+.message-content:hover .message-feedback {
+  opacity: 1;
+}
+
+.feedback-button {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: rgb(255, 255, 255) !important; /* Pure white by default */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  line-height: 0;
+  opacity: 1; /* Full opacity by default */
+}
+
+/* Specific adjustment for thumbs up */
+.feedback-button:first-child svg {
+  transform: translateY(-1px); /* Raise thumbs up */
+}
+
+/* Keep thumbs down at current position */
+.feedback-button:last-child svg {
+  transform: translateY(1px);
+}
+
+.feedback-button svg {
+  width: 15px;
+  height: 15px;
+  vertical-align: middle;
+}
+
+/* Ensure proper spacing between messages */
+.rce-container-mlist .rce-mbox-left {
+  margin-bottom: 40px !important;
+}
+
+.feedback-button:hover {
+  color: rgba(255, 255, 255, 0.6) !important; /* Grey on hover */
+}

@@ -19,6 +19,8 @@ import {
   FaChevronUp,
   FaLink,
   FaExternalLinkAlt,
+  FaThumbsUp,
+  FaThumbsDown
 } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { MessageList, Input } from 'react-chat-elements';
@@ -1173,6 +1175,36 @@ function App() {
   // Add new state for orchestrator mode
   const [isOrchestratorMode, setIsOrchestratorMode] = useState(true);
 
+  // Add new state for feedback dialog
+  const [feedbackDialog, setFeedbackDialog] = useState({
+    isOpen: false,
+    messageId: null,
+    isPositive: null,
+    text: ''
+  });
+
+  // Add feedback handler
+  const handleFeedback = (messageId, isPositive) => {
+    setFeedbackDialog({
+      isOpen: true,
+      messageId,
+      isPositive,
+      text: ''
+    });
+  };
+
+  // Add feedback submit handler
+  const handleFeedbackSubmit = () => {
+    // Here you would typically send the feedback to your backend
+    console.log('Feedback submitted:', feedbackDialog);
+    setFeedbackDialog({
+      isOpen: false,
+      messageId: null,
+      isPositive: null,
+      text: ''
+    });
+  };
+
   return (
     <div className="veyr-container" data-mode={mode}>
         <input 
@@ -1279,7 +1311,33 @@ function App() {
                   dataSource={chatHistory.map((message, index) => ({
                     position: message.sender === 'user' ? 'right' : 'left',
                     type: 'text',
-                    text: message.text,
+                    text: (
+                      <div className="message-content">
+                        {message.text}
+                        {message.sender === 'bot' && (
+                          <div className="message-feedback">
+                            <button 
+                              className="feedback-button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleFeedback(index, true);
+                              }}
+                            >
+                              <FaThumbsUp />
+                            </button>
+                            <button 
+                              className="feedback-button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleFeedback(index, false);
+                              }}
+                            >
+                              <FaThumbsDown />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ),
                     date: new Date(),
                     id: index,
                   }))}
@@ -1685,6 +1743,27 @@ function App() {
                 </button>
               </>
             )}
+          </div>
+        )}
+
+        {feedbackDialog.isOpen && (
+          <div className="feedback-dialog-overlay">
+            <div className="feedback-dialog">
+              <h3>{feedbackDialog.isPositive ? 'What was helpful?' : 'What could be improved?'}</h3>
+              <textarea
+                value={feedbackDialog.text}
+                onChange={(e) => setFeedbackDialog({...feedbackDialog, text: e.target.value})}
+                placeholder="Your feedback helps us improve..."
+              />
+              <div className="feedback-dialog-buttons">
+                <button onClick={() => setFeedbackDialog({...feedbackDialog, isOpen: false})}>
+                  Cancel
+                </button>
+                <button onClick={handleFeedbackSubmit}>
+                  Submit
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
