@@ -309,25 +309,24 @@
 }
 
 .saved-searches-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  background: #000;
-  border: 1px solid #000;
-  border-radius: 4px;
-  margin-top: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 10;
-  color: #fff;
+  position: static;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  max-height: none;
+  color: inherit;
 }
 
 .saved-search {
   padding: 10px 15px;
   cursor: pointer;
-  border-bottom: 1px solid #333;
+  background: #f8f8f8;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.saved-search:hover {
+  background-color: #eee;
 }
 
 .saved-search:last-child {
@@ -2364,19 +2363,12 @@ input:checked + .slider:before {
 }
 
 .saved-searches-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  background: #000;
-  border: 1px solid #000;
-  border-radius: 4px;
-  margin-top: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 10;
-  color: #fff;
+  position: static;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  max-height: none;
+  color: inherit;
 }
 
 /* Add scroll hint animation when content overflows */
@@ -2392,4 +2384,52 @@ input:checked + .slider:before {
 /* Apply animation when content overflows */
 .saved-searches-list[data-overflow="true"] {
   animation: scrollHint 6s ease-in-out infinite;
+}
+
+/* Update mobile styles for chat input */
+@media screen and (max-width: 768px) {
+  .chat-input-container {
+    position: fixed;
+    bottom: 40px;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 10px 15px;
+    border-top: 1px solid #eee;
+    z-index: 101;
+    box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
+  }
+
+  /* Adjust the input height for mobile */
+  .rce-input {
+    min-height: 60px !important; /* Increased from default */
+  }
+
+  .rce-input-textarea {
+    min-height: 60px !important;
+    padding: 8px 12px !important;
+    line-height: 1.4 !important;
+  }
+}
+
+.secondary-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 5px 0;
+}
+
+.secondary-controls button {
+  background: none;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #000;
+  text-decoration: underline;
+}
+
+.secondary-controls button:hover {
+  opacity: 0.8;
 }

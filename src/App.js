@@ -323,7 +323,6 @@ function App() {
   const [tagSuggestions, setTagSuggestions] = useState([]);
   const [newTagText, setNewTagText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [showSavedSearchesList, setShowSavedSearchesList] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [expandedBots, setExpandedBots] = useState(() => {
     // Initialize all bots as expanded
@@ -795,7 +794,7 @@ function App() {
     setPinnedBots(allBots.filter((bot) => search.pinnedBots.includes(bot.id)));
     handleSearch();
     setMode('search');
-    setShowSavedSearchesList(false);
+    setOpenSection(null);
   };
 
   const handleUpload = (event) => {
@@ -895,10 +894,6 @@ function App() {
   
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
-  };
-
-  const toggleSavedSearchesList = () => {
-    setShowSavedSearchesList(!showSavedSearchesList);
   };
 
   const toggleExpand = (botId) => {
@@ -1223,23 +1218,17 @@ function App() {
     }
   }, [chatHistory]); // Trigger when chat history changes
 
-  // Add this useEffect after other useEffects
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (savedSearchesRef.current && !savedSearchesRef.current.contains(event.target) && 
-          !event.target.closest('.saved-searches-link')) {
-        setShowSavedSearchesList(false);
-      }
-    };
+  // Add new state to track which section is open
+  const [openSection, setOpenSection] = useState(null); // 'help', 'stats', or 'saved'
 
-    if (showSavedSearchesList) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+  // Update the toggle handlers
+  const toggleHelp = () => {
+    setOpenSection(openSection === 'help' ? null : 'help');
+  };
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showSavedSearchesList]);
+  const toggleStats = () => {
+    setOpenSection(openSection === 'stats' ? null : 'stats');
+  };
 
   return (
     <div className={`veyr-container ${showMenu ? 'menu-open' : ''}`} data-mode={mode}>
@@ -1467,10 +1456,10 @@ function App() {
             // Search Mode Content
             <div className="search-content">
               <div className="controls" ref={controlsRef}>
-                <button onClick={() => setShowHelp(!showHelp)}>
+                <button onClick={toggleHelp}>
                   <FaQuestionCircle /> Help
                 </button>
-                <button onClick={() => setShowStats(!showStats)}>
+                <button onClick={toggleStats}>
                   <FaPlus /> Statistics
                 </button>
                 <button onClick={addBot}>
@@ -1502,27 +1491,22 @@ function App() {
                 )}
               </div>
 
-              <div className="saved-searches-section">
-                <div className="search-controls">
-                  <button 
-                    className="saved-searches-link" 
-                    onClick={toggleSavedSearchesList}
-                  >
-                    {showSavedSearchesList ? 'Close Saved Searches' : 'Saved Searches'}
-                  </button>
-                  <button
-                    className="sort-toggle-button"
-                    onClick={handleSortToggle}
-                  >
-                    Sort by: {sortMode === 'alpha' ? 'A-Z' : 'Rank'}
-                  </button>
-                </div>
-                {showSavedSearchesList && (
-                  <div 
-                    className="saved-searches-list"
-                    ref={savedSearchesRef}
-                    data-overflow={savedSearches.length > 6 ? "true" : "false"}
-                  >
+              <div className="secondary-controls">
+                <button onClick={() => setOpenSection(openSection === 'saved' ? null : 'saved')}>
+                  {openSection === 'saved' ? 'Close Saved Searches' : 'Saved Searches'}
+                </button>
+                <button
+                  className="sort-toggle-button"
+                  onClick={handleSortToggle}
+                >
+                  Sort by: {sortMode === 'alpha' ? 'A-Z' : 'Rank'}
+                </button>
+              </div>
+
+              {openSection === 'saved' && (
+                <div className="help-section">
+                  <h3>Saved Searches</h3>
+                  <div className="saved-searches-content">
                     {savedSearches.map((search, index) => (
                       <div
                         key={index}
@@ -1533,10 +1517,10 @@ function App() {
                       </div>
                     ))}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
-              {showHelp && (
+              {openSection === 'help' && (
                 <div className="help-section">
                   <h3>Help</h3>
                   <p>Welcome to VeyR - The Intralox Chatbot Aggregator</p>
@@ -1575,7 +1559,7 @@ function App() {
                 </div>
               )}
 
-              {showStats && (
+              {openSection === 'stats' && (
                 <div className="stats-section">
                   <h3>Statistics for Pinned Chatbots</h3>
                   <div className="stats-grid">
