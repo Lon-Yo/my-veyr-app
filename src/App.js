@@ -1275,6 +1275,44 @@ function App() {
             </>
         )}
 
+        {mode === 'search' && (
+          <div className="search-chat-area">
+            <div className="input-mode-container">
+              <textarea
+                ref={searchInputRef}
+                className="search-chat-input"
+                placeholder="Search for chatbots..."
+                value={searchText}
+                onChange={handleSearchTextChange}
+              />
+              {searchText && (
+                <button 
+                  className="clear-text-button"
+                  onClick={() => {
+                    setSearchText('');
+                    if (searchInputRef.current) {
+                      searchInputRef.current.focus();
+                    }
+                  }}
+                >
+                  <FaTimes />
+                </button>
+              )}
+              <div className="search-suggestions">
+                {searchSuggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="suggestion"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="content-area">
           {mode === 'chat' ? (
             <div className="chat-content">

@@ -1451,15 +1451,15 @@
   .mobile-pagination {
     display: flex !important;
     position: fixed;
-    bottom: 0;
+    bottom: 40px; /* Increased to make room for footer */
     left: 0;
     right: 0;
-    background: #fff;
+    background: white;
     padding: 10px;
     box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
     justify-content: center;
     align-items: center;
-    z-index: 100;
+    z-index: 99;
   }
 
   .mobile-pagination span {
@@ -2192,5 +2192,66 @@ input:checked + .slider:before {
     background: #f5f5f5;
     padding: 10px 0;
     z-index: 100;
+  }
+}
+
+/* Update mobile pagination styles */
+.mobile-pagination {
+  position: fixed;
+  bottom: 40px; /* Increased to make room for footer */
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 10px;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  z-index: 99;
+}
+
+/* Update footer styles for search mode */
+.veyr-container[data-mode="search"] .intralox-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #f5f5f5;
+}
+
+/* Add padding to bottom of search content to prevent overlap */
+.search-content {
+  padding-bottom: 100px; /* Space for pagination and footer */
+}
+
+/* Add/update mobile styles for search input */
+@media screen and (max-width: 768px) {
+  .search-chat-area {
+    position: fixed;
+    bottom: 90px; /* Space for pagination + footer */
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 10px;
+    z-index: 99;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  }
+
+  .input-mode-container {
+    margin: 0;
+  }
+
+  .search-chat-input {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding-right: 40px !important;
+  }
+
+  /* Adjust content padding to prevent overlap */
+  .search-content {
+    padding-bottom: 150px; /* Increased to accommodate fixed search input */
+  }
+
+  /* Adjust pagination position */
+  .mobile-pagination {
+    bottom: 45px; /* Position above footer but below search */
   }
 }
