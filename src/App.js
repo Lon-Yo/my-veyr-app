@@ -344,6 +344,16 @@ function App() {
 
   const controlsRef = useRef(null);
 
+  // Add this near your other useRef declarations
+  const expandedBotsRef = useRef({});
+
+  // Update your expandedBots state setter to also update the ref
+  const setExpandedBotsWithRef = (newValue) => {
+    const value = typeof newValue === 'function' ? newValue(expandedBots) : newValue;
+    expandedBotsRef.current = value;
+    setExpandedBots(value);
+  };
+
   useEffect(() => {
     const initialBots = getInitialBots();
     setAllBots(initialBots);
@@ -896,8 +906,9 @@ function App() {
     setCurrentPage(newPage);
   };
 
+  // Update your toggleExpand function to use the new setter
   const toggleExpand = (botId) => {
-    setExpandedBots((prevExpandedBots) => ({
+    setExpandedBotsWithRef((prevExpandedBots) => ({
       ...prevExpandedBots,
       [botId]: !prevExpandedBots[botId],
     }));
@@ -1231,6 +1242,31 @@ function App() {
   const toggleStats = () => {
     setOpenSection(openSection === 'stats' ? null : 'stats');
   };
+
+  // Update the useEffect for click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Use the ref instead of the state directly
+      const currentExpandedBots = Object.entries(expandedBotsRef.current)
+        .filter(([_, isExpanded]) => isExpanded);
+      
+      for (const [botId] of currentExpandedBots) {
+        const botCard = document.querySelector(`[data-bot-id="${botId}"]`);
+        
+        if (botCard && !botCard.contains(event.target)) {
+          setExpandedBotsWithRef(prev => ({
+            ...prev,
+            [botId]: false
+          }));
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []); // Empty dependency array since we're using ref
 
   return (
     <div className={`veyr-container ${showMenu ? 'menu-open' : ''}`} data-mode={mode}>
@@ -1633,6 +1669,7 @@ function App() {
                   <div 
                     className={`bot-card ${expandedBots[bot.id] ? 'expanded' : ''}`}
                     key={bot.id}
+                    data-bot-id={bot.id}
                     onContextMenu={(e) => handleContextMenu(e, 'bot', bot.id)}
                   >
                     <div className="bot-header">
