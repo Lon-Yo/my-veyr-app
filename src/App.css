@@ -8,6 +8,9 @@
   padding: 10px;
   background-color: #f5f5f5;
   overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -1824,4 +1827,92 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+.content-area {
+  flex: 1;
+}
+
+.intralox-footer {
+  width: 100%;
+  padding: 1rem 0;
+  text-align: center;
+  color: #000;
+  font-size: 0.9rem;
+}
+
+/* For mobile devices */
+@media (max-width: 768px) {
+  .intralox-footer {
+    padding: 0.75rem 0;
+    font-size: 0.8rem;
+  }
+}
+
+/* Add these styles */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 250px);
+  background: #f5f5f5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.message-list {
+  flex: 1;
+  background: #f5f5f5;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.chat-input-container {
+  padding: 15px;
+  background: #fff;
+  border-top: 1px solid #eee;
+}
+
+/* Override react-chat-elements default styles */
+.rce-container-mlist {
+  background: transparent !important;
+}
+
+.rce-mbox {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+.rce-mbox-left {
+  background: #f0f0f0 !important;  /* Lighter gray for bot messages */
+  color: #000 !important;
+  border: 1px solid #e0e0e0 !important;
+}
+
+.rce-mbox-right {
+  background: #ddd !important;  /* Match the gray used in the UI */
+  color: #000 !important;  /* Change text to black for better contrast */
+}
+
+.rce-input {
+  border-radius: 8px !important;
+  border: 1px solid #ccc !important;
+}
+
+.rce-input-textarea {
+  padding: 12px !important;
+  font-family: inherit !important;
+}
+
+/* Maintain the existing styles for the mode toggle and footer */
+.chat-mode-toggle {
+  margin-bottom: 20px;
+}
+
+.chat-controls {
+  margin-top: 20px;
+}
+
+/* Optional: Add some shadow for better depth */
+.rce-mbox {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
 }

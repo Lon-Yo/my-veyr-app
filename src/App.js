@@ -21,6 +21,8 @@ import {
   FaExternalLinkAlt,
 } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi';
+import { MessageList, Input } from 'react-chat-elements';
+import 'react-chat-elements/dist/main.css';
 
 function App() {
   const getInitialBots = () => {
@@ -1321,7 +1323,6 @@ function App() {
 
         <div className="content-area">
           {mode === 'chat' ? (
-            // Chat Mode Content
             <div className="chat-content">
               <div className="chat-mode-toggle">
                 <span className={!isOrchestratorMode ? 'active' : ''}>Manual</span>
@@ -1329,19 +1330,61 @@ function App() {
                   <input
                     type="checkbox"
                     checked={isOrchestratorMode}
-                    onChange={() => setIsOrchestratorMode(!isOrchestratorMode)}
+                    onChange={() => {
+                      setIsOrchestratorMode(!isOrchestratorMode);
+                      // If turning off orchestrator mode (switching to manual)
+                      if (isOrchestratorMode) {
+                        // Wait for slider animation (0.4s) plus 0.2s
+                        setTimeout(() => {
+                          setMode('search');
+                        }, 600);
+                      }
+                    }}
                   />
                   <span className="slider round"></span>
                 </label>
                 <span className={isOrchestratorMode ? 'active' : ''}>Orchestrator</span>
               </div>
-              <div className="chat-history" ref={chatHistoryRef}>
-                {chatHistory.map((message, index) => (
-                  <div key={index} className={`message ${message.sender}`}>
-                    {message.text}
-                  </div>
-                ))}
+
+              <div className="chat-container">
+                <MessageList
+                  className='message-list'
+                  lockable={true}
+                  toBottomHeight={'100%'}
+                  dataSource={chatHistory.map((message, index) => ({
+                    position: message.sender === 'user' ? 'right' : 'left',
+                    type: 'text',
+                    text: message.text,
+                    date: new Date(),
+                    id: index,
+                  }))}
+                />
+                
+                <div className="chat-input-container">
+                  <Input
+                    placeholder={
+                      isOrchestratorMode
+                        ? "Ask any question..."
+                        : pinnedBots.length > 0
+                          ? "Chat with selected bots..."
+                          : "Please select chatbots first"
+                    }
+                    multiline={true}
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    rightButtons={
+                      <button 
+                        className={`chat-submit-button ${(!isOrchestratorMode && pinnedBots.length === 0) ? 'disabled' : ''}`}
+                        onClick={handleChatSubmit}
+                        disabled={!isOrchestratorMode && pinnedBots.length === 0}
+                      >
+                        <FaArrowUp />
+                      </button>
+                    }
+                  />
+                </div>
               </div>
+
               {chatHistory.length > 0 && (
                 <div className="chat-controls">
                   <button className="clear-chat" onClick={() => setChatHistory([])}>
@@ -1716,6 +1759,10 @@ function App() {
             )}
           </div>
         )}
+
+        <footer className="intralox-footer">
+          <span>Intralox 2025</span>
+        </footer>
     </div>
   );
 }
