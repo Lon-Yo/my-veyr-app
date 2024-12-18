@@ -2318,7 +2318,7 @@ input:checked + .slider:before {
 @media screen and (max-width: 768px) {
   .chat-input-container {
     position: fixed;
-    bottom: 40px; /* Position above footer (footer is usually 36-40px) */
+    bottom: 15px; /* Position above footer (footer is usually 36-40px) */
     left: 0;
     right: 0;
     background: #fff;
@@ -2405,7 +2405,7 @@ input:checked + .slider:before {
 @media screen and (max-width: 768px) {
   .chat-input-container {
     position: fixed;
-    bottom: 40px;
+    bottom: 15px;
     left: 0;
     right: 0;
     background: #fff;
