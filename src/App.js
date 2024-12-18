@@ -1199,28 +1199,29 @@ function App() {
     });
   };
 
-  // Add this useEffect to handle centering of messages
+  // Update the existing useEffect that handles chat messages
   useEffect(() => {
     if (chatHistory.length > 0) {
+      // Wait for the DOM to update
       setTimeout(() => {
-        const messageList = document.querySelector('.rce-container-mlist');
-        const messages = messageList.querySelectorAll('.rce-mbox');
-        const lastMessage = messages[messages.length - 1];
-        
-        if (lastMessage) {
-          const containerHeight = messageList.clientHeight;
-          const messageTop = lastMessage.offsetTop;
-          const messageHeight = lastMessage.offsetHeight;
-          const centerPosition = messageTop - (containerHeight / 2) + (messageHeight / 2);
-          
-          messageList.scrollTo({
-            top: centerPosition,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
+        // Try all possible container selectors
+        const containers = [
+          document.querySelector('.chat-container'),
+          document.querySelector('.rce-container-mlist'),
+          document.querySelector('.rce-mlist')
+        ];
+
+        containers.forEach(container => {
+          if (container) {
+            container.scrollTo({
+              top: container.scrollHeight,
+              behavior: 'smooth'
+            });
+          }
+        });
+      }, 200); // Increased delay to ensure message is rendered
     }
-  }, [chatHistory]);
+  }, [chatHistory]); // Trigger when chat history changes
 
   // Add this useEffect after other useEffects
   useEffect(() => {
