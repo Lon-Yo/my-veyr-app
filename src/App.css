@@ -2288,13 +2288,19 @@ input:checked + .slider:before {
 @media screen and (max-width: 768px) {
   .chat-input-container {
     position: fixed;
-    bottom: 50px;
+    bottom: 40px; /* Position above footer (footer is usually 36-40px) */
     left: 0;
     right: 0;
     background: #fff;
     padding: 10px 15px;
     border-top: 1px solid #eee;
-    z-index: 101;
+    z-index: 101; /* Higher than footer */
+    box-shadow: 0 -1px 4px rgba(0,0,0,0.1);
+  }
+
+  .message-list {
+    padding-bottom: 100px; /* Add space for input and footer */
+    margin-bottom: 0;
   }
 
   .intralox-footer {
@@ -2305,33 +2311,31 @@ input:checked + .slider:before {
     background: #f5f5f5;
     padding: 10px 0;
     z-index: 100;
+    height: 36px; /* Explicit height for footer */
   }
 
-  .content-area {
-    padding-bottom: 120px;
+  /* Ensure content doesn't get hidden */
+  .chat-content {
+    padding-bottom: 90px; /* Space for input + footer */
+  }
+}
+
+/* Update the chat submit button styles for mobile */
+@media screen and (max-width: 768px) {
+  .chat-submit-button {
+    min-width: 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    aspect-ratio: 1 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
   }
 
-  .search-content {
-    padding-top: 10px;
-    padding-bottom: 120px;
-  }
-
-  .mobile-pagination {
-    position: fixed;
-    bottom: 60px;
-    left: 0;
-    right: 0;
-    background: white;
-    padding: 10px;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-    z-index: 99;
-  }
-
-  .message-list {
-    padding-bottom: 120px;
-  }
-
-  .veyr-container.menu-open {
-    overflow: hidden;
+  .chat-submit-button svg {
+    width: 16px !important;
+    height: 16px !important;
   }
 }

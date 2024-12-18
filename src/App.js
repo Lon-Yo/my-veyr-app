@@ -530,6 +530,8 @@ function App() {
       };
 
       setChatHistory(prev => [...prev, userMessage, botResponse]);
+      
+      // Clear the input field
       setSearchText('');
 
       // Scroll to bottom of chat
@@ -1317,7 +1319,7 @@ function App() {
           {mode === 'chat' ? (
             <div className="chat-content">
               <div className="chat-mode-toggle">
-                <span className={!isOrchestratorMode ? 'active' : ''}>Manual</span>
+                <span className={!isOrchestratorMode ? 'active' : ''}>Pick Chatbots</span>
                 <label className="switch">
                   <input
                     type="checkbox"
